@@ -95,8 +95,8 @@ async function initCamera() {
     const constraints = {
         video: {
             deviceId: vId ? { exact: vId } : undefined,
-            width: { ideal: resHeight === 4K ? 3840 : (resHeight === 1080 ? 1920 : 1280) },
-            height: { ideal: resHeight === 4K ? 2160 : (resHeight === 1080 : 1080) : 720 },
+            width: { ideal: resHeight === 4 ? 3840 : (resHeight === 1080 ? 1920 : 1280) },
+    height: { ideal: resHeight === 4 ? 2160 : (resHeight === 1080 ? 1080 : 720) },
             frameRate: { ideal: targetFps }
         },
         audio: {
