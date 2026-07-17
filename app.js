@@ -34,7 +34,7 @@ let isRecording = false;
 let isPaused = false;
 let pixelesPorMilisegundo = 0;
 
-// Contextos de Audio para Filtros Avanzados
+// Contextos de Audio para Procesamiento de Estudio
 let audioCtx = null;
 let audioSourceNode = null;
 let streamDestination = null;
@@ -56,7 +56,7 @@ window.addEventListener('DOMContentLoaded', async () => {
     }, 500);
 });
 
-// ETAPA 1: Enumeración Completa de Dispositivos (Múltiples Cámaras y Micrófonos)
+// ETAPA 1: Enumeración Completa de Dispositivos
 async function enumerarDispositivos() {
     try {
         await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
@@ -85,7 +85,7 @@ async function enumerarDispositivos() {
     }
 }
 
-// ETAPA 1: Inicialización de la Cámara con Parámetros de Resolución y FPS
+// ETAPA 1: Inicialización de la Cámara y Hardware
 async function initCamera() {
     if (window.streamRef) {
         window.streamRef.getTracks().forEach(track => track.stop());
@@ -107,7 +107,7 @@ async function initCamera() {
             deviceId: aId ? { exact: aId } : undefined,
             echoCancellation: true,
             noiseSuppression: true,
-            autoGainControl: true
+            autoGainControl: false // Desactivado para que no altere el rango dinámico antes del compresor
         }
     };
 
@@ -129,7 +129,7 @@ async function initCamera() {
     }
 }
 
-// Cambiar de cámara mediante botón flotante (Ciclo continuo)
+// Cambiar de cámara mediante botón flotante
 cameraBtn.addEventListener('click', (e) => {
     e.stopPropagation();
     if (videoDevices.length > 1) {
@@ -140,7 +140,6 @@ cameraBtn.addEventListener('click', (e) => {
     }
 });
 
-// Eventos de cambios en selectores de hardware
 videoSource.addEventListener('change', () => { initCamera(); guardarConfiguracionSujeta(); });
 audioSource.addEventListener('change', () => { initCamera(); guardarConfiguracionSujeta(); });
 resolutionSelect.addEventListener('change', () => { initCamera(); guardarConfiguracionSujeta(); });
@@ -218,7 +217,6 @@ function updateDurationEstimate() {
 speedRange.addEventListener('input', () => { updateDurationEstimate(); guardarConfiguracionSujeta(); });
 textInput.addEventListener('input', () => { updateDurationEstimate(); guardarConfiguracionSujeta(); });
 
-// ETAPA 1 & 8: Flujo de Grabación e Interfaz de Captura Profesional
 function togglePause() {
     if (!isRecording) return;
     isPaused = !isPaused;
@@ -270,39 +268,55 @@ startBtn.addEventListener('click', () => {
     }, 1000);
 });
 
+// FLUJO DE GRABACIÓN CON CADENA DE AUDIO PROFESIONAL PARA VOCES GRAVES
 function startRecordingAndScroll() {
     if (window.streamRef) {
         document.querySelector('.prompter-overlay').style.opacity = '1';
 
-        // INYECCIÓN DE FILTROS DE AUDIO POR SOFTWARE (Web Audio API)
         try {
             audioCtx = new (window.AudioContext || window.webkitAudioContext)();
             audioSourceNode = audioCtx.createMediaStreamSource(window.streamRef);
             streamDestination = audioCtx.createMediaStreamDestination();
 
-            // 1. Filtro Pasa-Altas (Elimina ruidos graves/viento por debajo de 80Hz)
+            // 1. FILTRO PASA-ALTAS (Corte a 110Hz para eliminar sub-graves que revientan bocinas)
             const hpFilter = audioCtx.createBiquadFilter();
             hpFilter.type = "highpass";
-            hpFilter.frequency.value = 80;
+            hpFilter.frequency.value = 110;
 
-            // 2. Ecualizador de Claridad Vocals (Resalta presencia de la voz entre 2.5kHz y 3kHz)
-            const eqFilter = audioCtx.createBiquadFilter();
-            eqFilter.type = "peaking";
-            eqFilter.frequency.value = 2800;
-            eqFilter.Q.value = 1.2;
-            eqFilter.gain.value = 3.5; // Agrega un sutil boost de claridad
+            // 2. ECUALIZADOR PARA QUITAR EL SONIDO ACARTONADO (Atenuación precisa en los 200Hz)
+            const antiMudFilter = audioCtx.createBiquadFilter();
+            antiMudFilter.type = "peaking";
+            antiMudFilter.frequency.value = 200;
+            antiMudFilter.Q.value = 1.5;      // Ancho de banda cerrado para no alterar otras frecuencias
+            antiMudFilter.gain.value = -4.5;  // Reduce el exceso de resonancia grave
 
-            // Conexión en cascada de los nodos de audio
+            // 3. ECUALIZADOR DE PRESENCIA (Realce en frecuencias medias-altas para dar nitidez)
+            const presenceFilter = audioCtx.createBiquadFilter();
+            presenceFilter.type = "peaking";
+            presenceFilter.frequency.value = 3200;
+            presenceFilter.Q.value = 1.0;
+            presenceFilter.gain.value = 4.0;  // Empuja la claridad de la voz
+
+            // 4. COMPRESOR DINÁMICO DE ESTUDIO (Evita saturaciones y nivela el volumen)
+            const compressor = audioCtx.createDynamicsCompressor();
+            compressor.threshold.setValueAtTime(-14, audioCtx.currentTime); // Empieza a actuar a los -14dB
+            compressor.knee.setValueAtTime(8, audioCtx.currentTime);        // Curva suave de compresión
+            compressor.ratio.setValueAtTime(3.5, audioCtx.currentTime);     // Control firme de volumen
+            compressor.attack.setValueAtTime(0.005, audioCtx.currentTime);  // Actúa rápido (5 milisegundos)
+            compressor.release.setValueAtTime(0.08, audioCtx.currentTime);  // Libera de forma natural
+
+            // Conexión en cadena serie de los nodos de procesamiento
             audioSourceNode.connect(hpFilter);
-            hpFilter.connect(eqFilter);
-            eqFilter.connect(streamDestination);
+            hpFilter.connect(antiMudFilter);
+            antiMudFilter.connect(presenceFilter);
+            presenceFilter.connect(compressor);
+            compressor.connect(streamDestination);
 
-            // Combinar la pista de video pura con el canal de audio limpio y filtrado
+            // Armar el nuevo stream combinado con el audio limpio
             const filteredStream = new MediaStream();
             filteredStream.addTrack(window.streamRef.getVideoTracks()[0]);
             filteredStream.addTrack(streamDestination.stream.getAudioTracks()[0]);
 
-            // Configurar opciones de formato del contenedor de video
             let options = { mimeType: 'video/mp4;codecs=avc1' };
             if (!MediaRecorder.isTypeSupported(options.mimeType)) {
                 options = { mimeType: 'video/webm;codecs=vp9' };
@@ -311,7 +325,6 @@ function startRecordingAndScroll() {
                 }
             }
 
-            // Iniciar el grabador apuntando al stream filtrado por software
             mediaRecorder = new MediaRecorder(filteredStream, options);
             recordedChunks = [];
             
@@ -327,7 +340,6 @@ function startRecordingAndScroll() {
                 a.click();
                 document.body.removeChild(a);
 
-                // Apagar el contexto de audio al terminar
                 if (audioCtx && audioCtx.state !== 'closed') {
                     audioCtx.close();
                 }
@@ -342,7 +354,7 @@ function startRecordingAndScroll() {
             lastTime = 0;
             animationFrameId = requestAnimationFrame(scrollText);
         } catch (e) {
-            console.error("Fallo al inicializar los filtros o MediaRecorder: ", e);
+            console.error("Fallo al inicializar la cadena de audio de estudio: ", e);
             startBtn.disabled = false;
         }
     }
@@ -369,13 +381,11 @@ function stopRecordingWorkflow() {
 
 stopBtn.addEventListener('click', (e) => { e.stopPropagation(); stopRecordingWorkflow(); });
 
-// ETAPA 4: Cambio Temas Visuales
 themeSelect.addEventListener('change', () => {
     document.body.className = themeSelect.value;
     guardarConfiguracionSujeta();
 });
 
-// ETAPA 5: Sistema de Persistencia Automatizada (LocalStorage)
 function guardarConfiguracionSujeta() {
     const config = {
         speed: speedRange.value,
@@ -404,7 +414,6 @@ function cargarConfiguracionSujeta() {
         fpsSelect.value = config.fps || '30';
         textInput.value = config.script || '';
 
-        // Aplicar estilos cargados
         document.body.className = themeSelect.value;
         prompterText.style.fontSize = fontSizeRange.value + 'rem';
         prompterText.style.color = textColorSelect.value;
@@ -415,7 +424,6 @@ function cargarConfiguracionSujeta() {
     }
 }
 
-// Botones auxiliares de la interfaz de guiones
 document.getElementById('clearScriptBtn').addEventListener('click', () => {
     if(confirm("¿Seguro que deseas limpiar el texto actual?")) {
         textInput.value = '';
