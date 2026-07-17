@@ -34,7 +34,12 @@ let isRecording = false;
 let isPaused = false;
 let pixelesPorMilisegundo = 0;
 
-// Variables Globales de Selección de Hardware (Etapa 1 y 5)
+// Contextos de Audio para Filtros Avanzados
+let audioCtx = null;
+let audioSourceNode = null;
+let streamDestination = null;
+
+// Variables Globales de Selección de Hardware
 let videoDevices = [];
 let currentCameraIndex = 0;
 
@@ -54,7 +59,6 @@ window.addEventListener('DOMContentLoaded', async () => {
 // ETAPA 1: Enumeración Completa de Dispositivos (Múltiples Cámaras y Micrófonos)
 async function enumerarDispositivos() {
     try {
-        // Forzar solicitud previa para obtener etiquetas legibles
         await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
         const devices = await navigator.mediaDevices.enumerateDevices();
         
@@ -102,7 +106,8 @@ async function initCamera() {
         audio: {
             deviceId: aId ? { exact: aId } : undefined,
             echoCancellation: true,
-            noiseSuppression: true
+            noiseSuppression: true,
+            autoGainControl: true
         }
     };
 
@@ -269,14 +274,45 @@ function startRecordingAndScroll() {
     if (window.streamRef) {
         document.querySelector('.prompter-overlay').style.opacity = '1';
 
-        let options = { mimeType: 'video/mp4;codecs=avc1' };
-        if (!MediaRecorder.isTypeSupported(options.mimeType)) {
-            options = { mimeType: 'video/webm;codecs=vp9' };
-            if (!MediaRecorder.isTypeSupported(options.mimeType)) { options = { mimeType: 'video/webm' }; }
-        }
-
+        // INYECCIÓN DE FILTROS DE AUDIO POR SOFTWARE (Web Audio API)
         try {
-            mediaRecorder = new MediaRecorder(window.streamRef, options);
+            audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+            audioSourceNode = audioCtx.createMediaStreamSource(window.streamRef);
+            streamDestination = audioCtx.createMediaStreamDestination();
+
+            // 1. Filtro Pasa-Altas (Elimina ruidos graves/viento por debajo de 80Hz)
+            const hpFilter = audioCtx.createBiquadFilter();
+            hpFilter.type = "highpass";
+            hpFilter.frequency.value = 80;
+
+            // 2. Ecualizador de Claridad Vocals (Resalta presencia de la voz entre 2.5kHz y 3kHz)
+            const eqFilter = audioCtx.createBiquadFilter();
+            eqFilter.type = "peaking";
+            eqFilter.frequency.value = 2800;
+            eqFilter.Q.value = 1.2;
+            eqFilter.gain.value = 3.5; // Agrega un sutil boost de claridad
+
+            // Conexión en cascada de los nodos de audio
+            audioSourceNode.connect(hpFilter);
+            hpFilter.connect(eqFilter);
+            eqFilter.connect(streamDestination);
+
+            // Combinar la pista de video pura con el canal de audio limpio y filtrado
+            const filteredStream = new MediaStream();
+            filteredStream.addTrack(window.streamRef.getVideoTracks()[0]);
+            filteredStream.addTrack(streamDestination.stream.getAudioTracks()[0]);
+
+            // Configurar opciones de formato del contenedor de video
+            let options = { mimeType: 'video/mp4;codecs=avc1' };
+            if (!MediaRecorder.isTypeSupported(options.mimeType)) {
+                options = { mimeType: 'video/webm;codecs=vp9' };
+                if (!MediaRecorder.isTypeSupported(options.mimeType)) { 
+                    options = { mimeType: 'video/webm' }; 
+                }
+            }
+
+            // Iniciar el grabador apuntando al stream filtrado por software
+            mediaRecorder = new MediaRecorder(filteredStream, options);
             recordedChunks = [];
             
             mediaRecorder.ondataavailable = (e) => { if (e.data.size > 0) recordedChunks.push(e.data); };
@@ -290,6 +326,11 @@ function startRecordingAndScroll() {
                 document.body.appendChild(a);
                 a.click();
                 document.body.removeChild(a);
+
+                // Apagar el contexto de audio al terminar
+                if (audioCtx && audioCtx.state !== 'closed') {
+                    audioCtx.close();
+                }
             };
 
             mediaRecorder.start();
@@ -301,7 +342,7 @@ function startRecordingAndScroll() {
             lastTime = 0;
             animationFrameId = requestAnimationFrame(scrollText);
         } catch (e) {
-            console.error("Fallo al iniciar MediaRecorder: ", e);
+            console.error("Fallo al inicializar los filtros o MediaRecorder: ", e);
             startBtn.disabled = false;
         }
     }
