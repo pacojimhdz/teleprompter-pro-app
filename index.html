@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Teleprompter Pro v9 - GitHub Edition</title>
+    <link rel="stylesheet" href="styles.css">
+    <!-- Manifiesto para convertirlo en PWA más adelante -->
+    <link rel="manifest" href="manifest.json">
+</head>
+<body>
+
+    <header class="app-header">
+        <h1>Teleprompter Pro v9</h1>
+        <div class="header-badges">
+            <span id="vustat" class="badge">VU: 0%</span>
+            <span id="storageStat" class="badge">Almacenamiento: OK</span>
+        </div>
+    </header>
+
+    <main class="main-layout">
+        <div class="viewport-wrapper-layout">
+            <!-- Contenedor del Monitor / Cámara / Texto -->
+            <div class="viewport-outer-container">
+                <div id="viewportOuter" class="viewport-outer format-16-9">
+                    <div id="viewportContainer" class="viewport-container">
+                        <video id="video" autoplay playsinline muted></video>
+                        
+                        <!-- Capas Superpuestas (Overlays) -->
+                        <div class="prompter-overlay">
+                            <div id="prompterText" class="prompter-text"></div>
+                        </div>
+                        
+                        <!-- Guías de Lectura Configurables -->
+                        <div id="readingGuide" class="reading-guide"></div>
+                        
+                        <div id="countdown" class="countdown-overlay">3</div>
+                        <div id="pauseIndicator" class="pause-indicator">PROMPTER PAUSADO</div>
+                        <div id="recordingBadge" class="recording-badge">🔴 GRABANDO</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Controles Flotantes Dinámicos -->
+            <div class="external-floating-controls" id="floatingControls">
+                <button id="startBtn" class="btn-floating btn-start" title="Iniciar Grabación">Grabar</button>
+                <button id="pauseBtn" class="btn-floating btn-pause" title="Pausar / Reanudar" disabled>Pausa</button>
+                <button id="resetBtn" class="btn-floating btn-reset" title="Reiniciar Texto">Reiniciar</button>
+                <button id="cameraBtn" class="btn-floating btn-camera" title="Cambiar Cámara">Cámara</button>
+                <button id="stopBtn" class="btn-floating btn-stop" title="Detener y Guardar" disabled>Guardar</button>
+            </div>
+        </div>
+
+        <!-- Panel de Control por Pestañas/Secciones -->
+        <div class="controls-card">
+            
+            <!-- ETAPA 5 & 1: Configuración de Hardware de Captura -->
+            <section class="control-section">
+                <h3><span class="step-tag">Etapa 1 & 5</span> Hardware y Captura</h3>
+                <div class="options-row">
+                    <div class="option-box">
+                        <label for="videoSource">Seleccionar Cámara</label>
+                        <select id="videoSource"><option value="">Cargando cámaras...</option></select>
+                    </div>
+                    <div class="option-box">
+                        <label for="audioSource">Seleccionar Micrófono</label>
+                        <select id="audioSource"><option value="">Cargando micrófonos...</option></select>
+                    </div>
+                </div>
+                <div class="options-row">
+                    <div class="option-box">
+                        <label for="resolutionSelect">Resolución</label>
+                        <select id="resolutionSelect">
+                            <option value="720">720p (Estándar HD)</option>
+                            <option value="1080" selected>1080p (Full HD)</option>
+                            <option value="4K">4K (Si el hardware lo permite)</option>
+                        </select>
+                    </div>
+                    <div class="option-box">
+                        <label for="fpsSelect">FPS</label>
+                        <select id="fpsSelect">
+                            <option value="30" selected>30 FPS</option>
+                            <option value="60">60 FPS</option>
+                        </select>
+                    </div>
+                </div>
+            </section>
+
+            <!-- ETAPA 2: Configuración del Teleprompter -->
+            <section class="control-section">
+                <h3><span class="step-tag">Etapa 2</span> Personalización del Prompter</h3>
+                <div class="setting-row">
+                    <div class="setting-info">
+                        <label for="fontSizeRange">Tamaño de Letra</label>
+                        <div id="fontSizeEst" class="font-badge">Tamaño: 1.6rem</div>
+                    </div>
+                    <input type="range" id="fontSizeRange" class="range-blue" min="1.0" max="4.0" value="1.6" step="0.1">
+                </div>
+
+                <div class="setting-row">
+                    <div class="setting-info">
+                        <label for="speedRange">Velocidad de Lectura (PPM)</label>
+                        <div id="durationEst" class="duration-badge">Duración aprox: Calculando...</div>
+                    </div>
+                    <input type="range" id="speedRange" min="100" max="350" value="215" step="5">
+                </div>
+
+                <div class="options-row">
+                    <div class="option-box">
+                        <label for="formatSelect">Formato de Video</label>
+                        <select id="formatSelect">
+                            <option value="16-9">Horizontal (16:9)</option>
+                            <option value="9-16">Vertical (9:16)</option>
+                        </select>
+                    </div>
+                    <div class="option-box">
+                        <label for="textColorSelect">Color de Texto</label>
+                        <select id="textColorSelect">
+                            <option value="#00ff00" selected>Verde Neón</option>
+                            <option value="#ffffff">Blanco Puro</option>
+                            <option value="#ffff00">Amarillo Brillante</option>
+                        </select>
+                    </div>
+                </div>
+            </section>
+
+            <!-- ETAPA 3: Gestión de Guiones con Persistencia -->
+            <section class="control-section">
+                <h3><span class="step-tag">Etapa 3</span> Editor de Guiones</h3>
+                <div class="script-manager-bar">
+                    <button id="saveScriptBtn" class="btn-action">Guardar Guion</button>
+                    <button id="clearScriptBtn" class="btn-action btn-danger">Limpiar</button>
+                </div>
+                <label for="textInput">Texto del Guion (Se guarda automáticamente)</label>
+                <textarea id="textInput" placeholder="Pega o escribe tu guion aquí... El sistema procesará el ritmo de lectura basándose en el contenido de este bloque."></textarea>
+            </section>
+
+            <!-- ETAPA 4: Apariencia del Sistema -->
+            <section class="control-section">
+                <h3><span class="step-tag">Etapa 4</span> Interfaz</h3>
+                <div class="options-row">
+                    <div class="option-box">
+                        <label for="themeSelect">Tema Visual de la Aplicación</label>
+                        <select id="themeSelect">
+                            <option value="theme-dark" selected>Modo Oscuro Pro</option>
+                            <option value="theme-oled">Negro OLED (Ahorro de batería)</option>
+                            <option value="theme-light">Modo Claro</option>
+                        </select>
+                    </div>
+                </div>
+            </section>
+        </div>
+    </main>
+
+    <!-- Scripts de Control Separados para Mantenimiento Escalable -->
+    <script src="app.js"></script>
+</body>
+</html>
