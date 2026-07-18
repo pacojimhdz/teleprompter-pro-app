@@ -2,213 +2,203 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Teleprompter Pro v9</title>
-    <!-- Enlace a los estilos responsivos cargados localmente -->
     <link rel="stylesheet" href="styles.css">
 </head>
-<body>
+<body class="theme-dark-pro">
 
-    <!-- HEADER DE LA APLICACIÓN -->
-    <header class="app-header">
-        <h1>Teleprompter <span style="color: var(--neon-blue);">Pro</span> <span class="badge" style="vertical-align: middle; margin-left: 5px;">v9</span></h1>
-        <div class="header-badges">
-            <span id="vustat" class="badge">VU: 0%</span>
-            <span id="storageStat" class="badge">Almacenamiento: OK</span>
+    <!-- BARRA SUPERIOR (HEADER) -->
+    <header class="main-header">
+        <div class="header-left">
+            <div class="app-logo">T</div>
+            <h1>Teleprompter Pro <span class="version-tag">v9</span></h1>
+        </div>
+        <div class="header-center">
+            <div class="status-pill"><span class="dot green"></span> VU: 0%</div>
+            <div class="status-pill"><span class="dot green"></span> Almacenamiento: OK</div>
+        </div>
+        <div class="header-right">
+            <button class="icon-btn"> Help </button>
+            <button class="icon-btn"> Settings </button>
+            <button class="icon-btn"> Theme </button>
         </div>
     </header>
 
-    <!-- CONTENEDOR Y LAYOUT PRINCIPAL -->
-    <main class="main-layout">
+    <!-- CONTENEDOR PRINCIPAL -->
+    <div class="app-container">
         
-        <!-- COLUMNA IZQUIERDA: MONITOR DE VIDEO Y CONTROLES PRINCIPALES -->
-        <section class="viewport-wrapper-layout">
+        <!-- COLUMNA IZQUIERDA: MONITOR Y BOTONES PRINCIPALES -->
+        <div class="left-column">
             
-            <!-- CONTENEDOR DEL MONITOR -->
-            <div class="viewport-outer-container">
-                <div class="viewport-outer format-16-9" id="viewportOuter">
-                    <div class="viewport-container">
+            <div class="monitor-and-actions">
+                <!-- El Visor con Borde de Neón Gradiente -->
+                <div class="video-card-glow">
+                    <div class="video-card-inner">
+                        <div class="top-badges">
+                            <span class="v-badge">1080p (Full HD)</span>
+                            <span class="v-badge">30 FPS</span>
+                            <span class="v-badge battery">52%</span>
+                        </div>
                         
-                        <!-- Elemento de Video Nativo -->
                         <video id="video" autoplay playsinline muted></video>
                         
-                        <!-- Capa Superpuesta del Teleprompter -->
-                        <div class="prompter-overlay" id="prompterOverlay">
-                            <div class="prompter-text" id="prompterText">Pega tu guion en el editor inferior y presiona GRABAR para comenzar...</div>
-                        </div>
-
-                        <!-- Líneas Guía de Lectura Centrales (Rojas) -->
-                        <div class="reading-guide" id="readingGuide"></div>
-
-                        <!-- Badges Informativos Flotantes sobre el Video -->
-                        <div class="recording-badge" id="recordBadge">● GRABANDO</div>
-                        <div class="pause-indicator" id="pauseIndicator">PAUSA</div>
-                        <div class="countdown-overlay" id="countdownOverlay">3</div>
+                        <!-- Líneas guía rojas -->
+                        <div class="guide-line line-top"></div>
+                        <div class="guide-line line-bottom"></div>
                         
+                        <div class="bottom-badges">
+                            <button class="grid-btn">⛶</button>
+                            <button class="cam-trigger-btn">📷</button>
+                            <button class="flip-btn">🔄</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Botones de Control Verticales Intermedios -->
+                <div class="vertical-control-panel">
+                    <button id="btnStart" class="action-btn red-btn active">
+                        <span class="btn-dot"></span> GRABAR
+                    </button>
+                    <button id="btnPause" class="action-btn yellow-btn">
+                        <span class="btn-icon">⏸</span> PAUSA
+                    </button>
+                    <button id="btnReset" class="action-btn blue-btn">
+                        <span class="btn-icon">🔄</span> REINICIAR
+                    </button>
+                    <button id="btnToggleCamera" class="action-btn green-btn">
+                        <span class="btn-icon">📷</span> CÁMARA
+                    </button>
+                    <button id="btnStop" class="action-btn gray-btn" disabled>
+                        <span class="btn-icon">💾</span> GUARDAR
+                    </button>
+                </div>
+            </div>
+
+            <!-- Barra de Telemetría Inferior -->
+            <footer class="telemetry-footer">
+                <div class="tel-item">
+                    <span class="tel-label">Resolución</span>
+                    <span class="tel-val" id="footer-res">1080p</span>
+                </div>
+                <div class="tel-item">
+                    <span class="tel-label">FPS</span>
+                    <span class="tel-val" id="footer-fps">30</span>
+                </div>
+                <div class="tel-item">
+                    <span class="tel-label">Formato</span>
+                    <span class="tel-val" id="footer-format">9:16</span>
+                </div>
+                <div class="tel-item">
+                    <span class="tel-label">Velocidad</span>
+                    <span class="tel-val" id="footer-speed">100 PPM</span>
+                </div>
+                <div class="tel-item">
+                    <span class="tel-label">Duración</span>
+                    <span class="tel-val" id="footer-duration">2:24 min</span>
+                </div>
+            </footer>
+        </div>
+
+        <!-- COLUMNA DERECHA: CONFIGURACIONES -->
+        <div class="right-column">
+            
+            <!-- SECCIÓN 1 -->
+            <div class="config-card">
+                <div class="card-header">
+                    <h3><span class="num-tag blue-tag">1</span> Hardware y Captura</h3>
+                    <span class="arrow-icon">▲</span>
+                </div>
+                <div class="card-body grid-2">
+                    <div class="input-group">
+                        <label>Seleccionar Cámara</label>
+                        <select id="videoSource"><option>camera 1, facing front</option></select>
+                    </div>
+                    <div class="input-group">
+                        <label>Seleccionar Micrófono</label>
+                        <select id="audioSource"><option>Predeterminado</option></select>
+                    </div>
+                    <div class="input-group">
+                        <label>Resolución</label>
+                        <select id="resolutionSelect"><option>1080p (Full HD)</option></select>
+                    </div>
+                    <div class="input-group">
+                        <label>FPS</label>
+                        <select id="fpsSelect"><option>30 FPS</option></select>
                     </div>
                 </div>
             </div>
 
-            <!-- BOTONES FLOTANTES DE CONTROL PRINCIPAL -->
-            <div class="external-floating-controls">
-                <button id="btnStart" class="btn-floating btn-start">
-                    <span class="control-icon">🔴</span>
-                    <span>GRABAR</span>
-                </button>
-                <button id="btnPause" class="btn-floating btn-pause" disabled>
-                    <span class="control-icon">⏸</span>
-                    <span>PAUSA</span>
-                </button>
-                <button id="btnReset" class="btn-floating btn-reset">
-                    <span class="control-icon">🔄</span>
-                    <span>REINICIAR</span>
-                </button>
-                <button id="btnToggleCamera" class="btn-floating btn-camera">
-                    <span class="control-icon">📷</span>
-                    <span>CÁMARA</span>
-                </button>
-                <button id="btnStop" class="btn-floating btn-stop" disabled>
-                    <span class="control-icon">💾</span>
-                    <span>GUARDAR</span>
-                </button>
-            </div>
-
-        </section>
-
-        <!-- COLUMNA DERECHA: CONFIGURACIONES Y EDITOR DE GUIONES -->
-        <section class="controls-card">
-
-            <!-- SECCIÓN 1: HARDWARE Y CAPTURA -->
-            <div class="control-section">
-                <h3><span class="step-tag">1</span> Hardware y Captura</h3>
-                <div class="options-row">
-                    <div class="option-box">
-                        <label for="videoSource">Seleccionar Cámara</label>
-                        <select id="videoSource"><option value="">Cargando cámaras...</option></select>
-                    </div>
-                    <div class="option-box">
-                        <label for="audioSource">Seleccionar Micrófono</label>
-                        <select id="audioSource"><option value="">Predeterminado</option></select>
-                    </div>
+            <!-- SECCIÓN 2 -->
+            <div class="config-card">
+                <div class="card-header">
+                    <h3><span class="num-tag purple-tag">2</span> Personalización del Prompter</h3>
+                    <span class="arrow-icon">▲</span>
                 </div>
-                <div class="options-row">
-                    <div class="option-box">
-                        <label for="resolutionSelect">Resolución</label>
-                        <select id="resolutionSelect">
-                            <option value="1080">1080p (Full HD)</option>
-                            <option value="720">720p (HD)</option>
-                            <option value="4k">4K (Ultra HD)</option>
-                        </select>
+                <div class="card-body">
+                    <div class="slider-group">
+                        <div class="slider-meta"><label>Tamaño de Letra</label><span>1rem</span></div>
+                        <input type="range" id="fontSize" min="1" max="4" step="0.1" value="1">
                     </div>
-                    <div class="option-box">
-                        <label for="fpsSelect">FPS</label>
-                        <select id="fpsSelect">
-                            <option value="30">30 FPS</option>
-                            <option value="60">60 FPS</option>
-                        </select>
+                    <div class="slider-group">
+                        <div class="slider-meta"><label>Velocidad de Lectura (PPM)</label><span>100 PPM</span></div>
+                        <input type="range" id="scrollSpeed" min="50" max="300" step="5" value="100">
+                    </div>
+                    <div class="duration-indicator">Duración estimada: 2:24 min</div>
+                    
+                    <div class="grid-2" style="margin-top: 15px;">
+                        <div class="input-group">
+                            <label>Formato de Video</label>
+                            <select id="aspectRatioSelect"><option>Vertical (9:16)</option></select>
+                        </div>
+                        <div class="input-group">
+                            <label>Color de Texto</label>
+                            <select id="textColorSelect"><option>Verde Neón</option></select>
+                        </div>
                     </div>
                 </div>
             </div>
 
-            <!-- SECCIÓN 2: PERSONALIZACIÓN DEL PROMPTER -->
-            <div class="control-section">
-                <h3><span class="step-tag">2</span> Personalización del Prompter</h3>
-                
-                <div class="setting-row">
-                    <div class="setting-info">
-                        <label for="fontSize">Tamaño de Letra</label>
-                        <span id="fontSizeVal" class="font-badge">1.5rem</span>
+            <!-- SECCIÓN 3 -->
+            <div class="config-card">
+                <div class="card-header">
+                    <h3><span class="num-tag purple-inner-tag">3</span> Editor de Guiones</h3>
+                    <div class="header-right-meta">
+                        <span>Auto-guardado</span>
+                        <span class="status-text green-text">● Activado</span>
                     </div>
-                    <input type="range" id="fontSize" min="1" max="4" step="0.1" value="1.5">
                 </div>
+                <div class="card-body">
+                    <div class="editor-actions">
+                        <button class="editor-btn blue-btn-light">+ Nuevo Guion</button>
+                        <button class="editor-btn gray-outline">Cargar Guion</button>
+                        <button class="editor-btn red-outline">Limpiar</button>
+                    </div>
+                    <textarea id="scriptInput" placeholder="Escribe tu guion aquí...">Si tu primera salida fue un fracaso, no fue por tu detector. El verdadero error está en el lugar donde buscas, y hoy te voy a explicar por qué.</textarea>
+                    <div class="char-counter">186 / 5000 caracteres</div>
+                </div>
+            </div>
 
-                <div class="setting-row">
-                    <div class="setting-info">
-                        <label for="scrollSpeed">Velocidad de Lectura (PPM)</label>
-                        <span id="scrollSpeedVal" class="font-badge">100 PPM</span>
-                    </div>
-                    <input type="range" id="scrollSpeed" min="50" max="300" step="5" value="100">
+            <!-- SECCIÓN 4 -->
+            <div class="config-card">
+                <div class="card-header">
+                    <h3><span class="num-tag blue-tag">4</span> Interfaz</h3>
+                    <span class="arrow-icon">▲</span>
                 </div>
-                
-                <div style="margin-bottom: 12px;">
-                    <span id="estimatedDuration" class="duration-badge" style="color: var(--neon-green);">Duración estimada: 0:00 min</span>
-                </div>
-
-                <div class="options-row">
-                    <div class="option-box">
-                        <label for="aspectRatioSelect">Formato de Video</label>
-                        <select id="aspectRatioSelect">
-                            <option value="16-9">Horizontal (16:9)</option>
-                            <option value="9-16" selected>Vertical (9:16)</option>
-                        </select>
-                    </div>
-                    <div class="option-box">
-                        <label for="textColorSelect">Color de Texto</label>
-                        <select id="textColorSelect">
-                            <option value="#00ffa3" selected>Verde Neón</option>
-                            <option value="#00d2ff">Azul Neón</option>
-                            <option value="#ffffff">Blanco Clásico</option>
-                            <option value="#ffb800">Amarillo Estudio</option>
-                        </select>
+                <div class="card-body">
+                    <label style="margin-bottom: 10px; display:block;">Tema Visual de la Aplicación</label>
+                    <div class="theme-selector-grid">
+                        <button class="theme-btn active-theme">Modo Oscuro Pro</button>
+                        <button class="theme-btn">Oscuro Clásico</button>
+                        <button class="theme-btn">Claro</button>
+                        <button class="theme-btn">Sepia</button>
+                        <button class="theme-btn">Azul Profundo</button>
                     </div>
                 </div>
             </div>
 
-            <!-- SECCIÓN 3: EDITOR DE GUIONES -->
-            <div class="control-section">
-                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
-                    <h3><span class="step-tag">3</span> Editor de Guiones</h3>
-                    <span id="autoSaveStatus" style="font-size: 0.75rem; color: var(--neon-green);">✔ Auto-guardado</span>
-                </div>
-                
-                <div class="script-manager-bar">
-                    <button id="btnSaveScript" class="btn-action">Guardar Guion</button>
-                    <button id="btnLoadScript" class="btn-action">Cargar Guion</button>
-                    <button id="btnClearScript" class="btn-action btn-danger">Limpiar</button>
-                </div>
+        </div>
+    </div>
 
-                <textarea id="scriptInput" placeholder="Escribe o pega aquí el guion para tu video..."></textarea>
-                <div style="text-align: right; font-size: 0.7rem; color: var(--text-muted); margin-top: 4px;">
-                    <span id="charCount">0</span> / 5000 caracteres
-                </div>
-            </div>
-
-            <!-- SECCIÓN 4: INTERFAZ -->
-            <div class="control-section">
-                <h3><span class="step-tag">4</span> Interfaz</h3>
-                <label style="display: block; margin-bottom: 8px;">Tema Visual de la Aplicación</label>
-                <div class="options-row" style="grid-template-columns: repeat(3, 1fr);">
-                    <button id="themeDarkPro" class="btn-action" style="border-color: var(--neon-purple);">Oscuro Pro</button>
-                    <button id="themeOled" class="btn-action">OLED</button>
-                    <button id="themeLight" class="btn-action">Claro</button>
-                </div>
-            </div>
-
-        </section>
-
-        <!-- BARRA DE TELEMETRÍA INFERIOR DE RESPALDO (SE ACTIVA EN PC / LAPTOP AUTOMÁTICAMENTE) -->
-        <footer class="pc-info-footer-bar" id="pcFooterBar">
-            <div class="pc-footer-item">
-                <span>Resolución</span>
-                <span id="footer-res">1080p</span>
-            </div>
-            <div class="pc-footer-item">
-                <span>FPS</span>
-                <span id="footer-fps">30 FPS</span>
-            </div>
-            <div class="pc-footer-item">
-                <span>Formato</span>
-                <span id="footer-format">9:16</span>
-            </div>
-            <div class="pc-footer-item">
-                <span>Velocidad</span>
-                <span id="footer-speed">100 PPM</span>
-            </div>
-        </footer>
-
-    </main>
-
-    <!-- Enlace a la lógica del sistema cargada localmente -->
-    <script src="app.js"></script>
 </body>
 </html>
