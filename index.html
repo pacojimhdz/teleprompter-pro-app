@@ -3,79 +3,84 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Teleprompter Pro v9 - GitHub Edition</title>
+    <title>Teleprompter Pro v9</title>
+    <!-- Enlace a los estilos responsivos cargados localmente -->
     <link rel="stylesheet" href="styles.css">
-    <!-- Manifiesto para convertirlo en PWA más adelante -->
-    <link rel="manifest" href="manifest.json">
 </head>
 <body>
 
+    <!-- HEADER DE LA APLICACIÓN -->
     <header class="app-header">
-        <h1>Teleprompter Pro v9</h1>
+        <h1>Teleprompter <span style="color: var(--neon-blue);">Pro</span> <span class="badge" style="vertical-align: middle; margin-left: 5px;">v9</span></h1>
         <div class="header-badges">
             <span id="vustat" class="badge">VU: 0%</span>
             <span id="storageStat" class="badge">Almacenamiento: OK</span>
         </div>
     </header>
 
+    <!-- CONTENEDOR Y LAYOUT PRINCIPAL -->
     <main class="main-layout">
-        <div class="viewport-wrapper-layout">
-            <!-- Contenedor del Monitor / Cámara / Texto -->
+        
+        <!-- COLUMNA IZQUIERDA: MONITOR DE VIDEO Y CONTROLES PRINCIPALES -->
+        <section class="viewport-wrapper-layout">
+            
+            <!-- CONTENEDOR DEL MONITOR -->
             <div class="viewport-outer-container">
-                <div id="viewportOuter" class="viewport-outer format-16-9">
-                    <div id="viewportContainer" class="viewport-container">
+                <div class="viewport-outer format-16-9" id="viewportOuter">
+                    <div class="viewport-container">
+                        
+                        <!-- Elemento de Video Nativo -->
                         <video id="video" autoplay playsinline muted></video>
                         
-                        <!-- Capas Superpuestas (Overlays) -->
-                        <div class="prompter-overlay">
-                            <div id="prompterText" class="prompter-text"></div>
+                        <!-- Capa Superpuesta del Teleprompter -->
+                        <div class="prompter-overlay" id="prompterOverlay">
+                            <div class="prompter-text" id="prompterText">Pega tu guion en el editor inferior y presiona GRABAR para comenzar...</div>
                         </div>
+
+                        <!-- Líneas Guía de Lectura Centrales (Rojas) -->
+                        <div class="reading-guide" id="readingGuide"></div>
+
+                        <!-- Badges Informativos Flotantes sobre el Video -->
+                        <div class="recording-badge" id="recordBadge">● GRABANDO</div>
+                        <div class="pause-indicator" id="pauseIndicator">PAUSA</div>
+                        <div class="countdown-overlay" id="countdownOverlay">3</div>
                         
-                        <!-- Guías de Lectura Configurables -->
-                        <div id="readingGuide" class="reading-guide"></div>
-                        
-                        <div id="countdown" class="countdown-overlay">3</div>
-                        <div id="pauseIndicator" class="pause-indicator">PROMPTER PAUSADO</div>
-                        <div id="recordingBadge" class="recording-badge">🔴 GRABANDO</div>
                     </div>
                 </div>
             </div>
 
-            <!-- Controles Flotantes Dinámicos -->
-            <div class="external-floating-controls" id="floatingControls">
-                <button id="startBtn" class="btn-floating btn-start" title="Iniciar Grabación">Grabar</button>
-                <button id="pauseBtn" class="btn-floating btn-pause" title="Pausar / Reanudar" disabled>Pausa</button>
-                <button id="resetBtn" class="btn-floating btn-reset" title="Reiniciar Texto">Reiniciar</button>
-                <button id="cameraBtn" class="btn-floating btn-camera" title="Cambiar Cámara">Cámara</button>
-                <button id="stopBtn" class="btn-floating btn-stop" title="Detener y Guardar" disabled>Guardar</button>
+            <!-- BOTONES FLOTANTES DE CONTROL PRINCIPAL -->
+            <div class="external-floating-controls">
+                <button id="btnStart" class="btn-floating btn-start">
+                    <span class="control-icon">🔴</span>
+                    <span>GRABAR</span>
+                </button>
+                <button id="btnPause" class="btn-floating btn-pause" disabled>
+                    <span class="control-icon">⏸</span>
+                    <span>PAUSA</span>
+                </button>
+                <button id="btnReset" class="btn-floating btn-reset">
+                    <span class="control-icon">🔄</span>
+                    <span>REINICIAR</span>
+                </button>
+                <button id="btnToggleCamera" class="btn-floating btn-camera">
+                    <span class="control-icon">📷</span>
+                    <span>CÁMARA</span>
+                </button>
+                <button id="btnStop" class="btn-floating btn-stop" disabled>
+                    <span class="control-icon">💾</span>
+                    <span>GUARDAR</span>
+                </button>
             </div>
-        </div>
-        <!-- Fila de Información de Telemetría Inferior para pantallas de PC -->
-        <div class="pc-info-footer-bar">
-            <div class="pc-footer-item">
-                <span>Resolución</span>
-                <span id="footer-res">1080p</span>
-            </div>
-            <div class="pc-footer-item">
-                <span>FPS</span>
-                <span id="footer-fps">30</span>
-            </div>
-            <div class="pc-footer-item">
-                <span>Formato</span>
-                <span id="footer-format">16:9</span>
-            </div>
-            <div class="pc-footer-item">
-                <span>Velocidad</span>
-                <span id="footer-speed">215 PPM</span>
-            </div>
-        </div>
 
-        <!-- Panel de Control por Pestañas/Secciones -->
-        <div class="controls-card">
-            
-            <!-- ETAPA 5 & 1: Configuración de Hardware de Captura -->
-            <section class="control-section">
-                <h3><span class="step-tag">Etapa 1 & 5</span> Hardware y Captura</h3>
+        </section>
+
+        <!-- COLUMNA DERECHA: CONFIGURACIONES Y EDITOR DE GUIONES -->
+        <section class="controls-card">
+
+            <!-- SECCIÓN 1: HARDWARE Y CAPTURA -->
+            <div class="control-section">
+                <h3><span class="step-tag">1</span> Hardware y Captura</h3>
                 <div class="options-row">
                     <div class="option-box">
                         <label for="videoSource">Seleccionar Cámara</label>
@@ -83,95 +88,127 @@
                     </div>
                     <div class="option-box">
                         <label for="audioSource">Seleccionar Micrófono</label>
-                        <select id="audioSource"><option value="">Cargando micrófonos...</option></select>
+                        <select id="audioSource"><option value="">Predeterminado</option></select>
                     </div>
                 </div>
                 <div class="options-row">
                     <div class="option-box">
                         <label for="resolutionSelect">Resolución</label>
                         <select id="resolutionSelect">
-                            <option value="720">720p (Estándar HD)</option>
-                            <option value="1080" selected>1080p (Full HD)</option>
-                            <option value="4K">4K (Si el hardware lo permite)</option>
+                            <option value="1080">1080p (Full HD)</option>
+                            <option value="720">720p (HD)</option>
+                            <option value="4k">4K (Ultra HD)</option>
                         </select>
                     </div>
                     <div class="option-box">
                         <label for="fpsSelect">FPS</label>
                         <select id="fpsSelect">
-                            <option value="30" selected>30 FPS</option>
+                            <option value="30">30 FPS</option>
                             <option value="60">60 FPS</option>
                         </select>
                     </div>
                 </div>
-            </section>
+            </div>
 
-            <!-- ETAPA 2: Configuración del Teleprompter -->
-            <section class="control-section">
-                <h3><span class="step-tag">Etapa 2</span> Personalización del Prompter</h3>
+            <!-- SECCIÓN 2: PERSONALIZACIÓN DEL PROMPTER -->
+            <div class="control-section">
+                <h3><span class="step-tag">2</span> Personalización del Prompter</h3>
+                
                 <div class="setting-row">
                     <div class="setting-info">
-                        <label for="fontSizeRange">Tamaño de Letra</label>
-                        <div id="fontSizeEst" class="font-badge">Tamaño: 1.6rem</div>
+                        <label for="fontSize">Tamaño de Letra</label>
+                        <span id="fontSizeVal" class="font-badge">1.5rem</span>
                     </div>
-                    <input type="range" id="fontSizeRange" class="range-blue" min="1.0" max="4.0" value="1.6" step="0.1">
+                    <input type="range" id="fontSize" min="1" max="4" step="0.1" value="1.5">
                 </div>
 
                 <div class="setting-row">
                     <div class="setting-info">
-                        <label for="speedRange">Velocidad de Lectura (PPM)</label>
-                        <div id="durationEst" class="duration-badge">Duración aprox: Calculando...</div>
+                        <label for="scrollSpeed">Velocidad de Lectura (PPM)</label>
+                        <span id="scrollSpeedVal" class="font-badge">100 PPM</span>
                     </div>
-                    <input type="range" id="speedRange" min="100" max="350" value="215" step="5">
+                    <input type="range" id="scrollSpeed" min="50" max="300" step="5" value="100">
+                </div>
+                
+                <div style="margin-bottom: 12px;">
+                    <span id="estimatedDuration" class="duration-badge" style="color: var(--neon-green);">Duración estimada: 0:00 min</span>
                 </div>
 
                 <div class="options-row">
                     <div class="option-box">
-                        <label for="formatSelect">Formato de Video</label>
-                        <select id="formatSelect">
+                        <label for="aspectRatioSelect">Formato de Video</label>
+                        <select id="aspectRatioSelect">
                             <option value="16-9">Horizontal (16:9)</option>
-                            <option value="9-16">Vertical (9:16)</option>
+                            <option value="9-16" selected>Vertical (9:16)</option>
                         </select>
                     </div>
                     <div class="option-box">
                         <label for="textColorSelect">Color de Texto</label>
                         <select id="textColorSelect">
-                            <option value="#00ff00" selected>Verde Neón</option>
-                            <option value="#ffffff">Blanco Puro</option>
-                            <option value="#ffff00">Amarillo Brillante</option>
+                            <option value="#00ffa3" selected>Verde Neón</option>
+                            <option value="#00d2ff">Azul Neón</option>
+                            <option value="#ffffff">Blanco Clásico</option>
+                            <option value="#ffb800">Amarillo Estudio</option>
                         </select>
                     </div>
                 </div>
-            </section>
+            </div>
 
-            <!-- ETAPA 3: Gestión de Guiones con Persistencia -->
-            <section class="control-section">
-                <h3><span class="step-tag">Etapa 3</span> Editor de Guiones</h3>
+            <!-- SECCIÓN 3: EDITOR DE GUIONES -->
+            <div class="control-section">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+                    <h3><span class="step-tag">3</span> Editor de Guiones</h3>
+                    <span id="autoSaveStatus" style="font-size: 0.75rem; color: var(--neon-green);">✔ Auto-guardado</span>
+                </div>
+                
                 <div class="script-manager-bar">
-                    <button id="saveScriptBtn" class="btn-action">Guardar Guion</button>
-                    <button id="clearScriptBtn" class="btn-action btn-danger">Limpiar</button>
+                    <button id="btnSaveScript" class="btn-action">Guardar Guion</button>
+                    <button id="btnLoadScript" class="btn-action">Cargar Guion</button>
+                    <button id="btnClearScript" class="btn-action btn-danger">Limpiar</button>
                 </div>
-                <label for="textInput">Texto del Guion (Se guarda automáticamente)</label>
-                <textarea id="textInput" placeholder="Pega o escribe tu guion aquí... El sistema procesará el ritmo de lectura basándose en el contenido de este bloque."></textarea>
-            </section>
 
-            <!-- ETAPA 4: Apariencia del Sistema -->
-            <section class="control-section">
-                <h3><span class="step-tag">Etapa 4</span> Interfaz</h3>
-                <div class="options-row">
-                    <div class="option-box">
-                        <label for="themeSelect">Tema Visual de la Aplicación</label>
-                        <select id="themeSelect">
-                            <option value="theme-dark" selected>Modo Oscuro Pro</option>
-                            <option value="theme-oled">Negro OLED (Ahorro de batería)</option>
-                            <option value="theme-light">Modo Claro</option>
-                        </select>
-                    </div>
+                <textarea id="scriptInput" placeholder="Escribe o pega aquí el guion para tu video..."></textarea>
+                <div style="text-align: right; font-size: 0.7rem; color: var(--text-muted); margin-top: 4px;">
+                    <span id="charCount">0</span> / 5000 caracteres
                 </div>
-            </section>
-        </div>
+            </div>
+
+            <!-- SECCIÓN 4: INTERFAZ -->
+            <div class="control-section">
+                <h3><span class="step-tag">4</span> Interfaz</h3>
+                <label style="display: block; margin-bottom: 8px;">Tema Visual de la Aplicación</label>
+                <div class="options-row" style="grid-template-columns: repeat(3, 1fr);">
+                    <button id="themeDarkPro" class="btn-action" style="border-color: var(--neon-purple);">Oscuro Pro</button>
+                    <button id="themeOled" class="btn-action">OLED</button>
+                    <button id="themeLight" class="btn-action">Claro</button>
+                </div>
+            </div>
+
+        </section>
+
+        <!-- BARRA DE TELEMETRÍA INFERIOR DE RESPALDO (SE ACTIVA EN PC / LAPTOP AUTOMÁTICAMENTE) -->
+        <footer class="pc-info-footer-bar" id="pcFooterBar">
+            <div class="pc-footer-item">
+                <span>Resolución</span>
+                <span id="footer-res">1080p</span>
+            </div>
+            <div class="pc-footer-item">
+                <span>FPS</span>
+                <span id="footer-fps">30 FPS</span>
+            </div>
+            <div class="pc-footer-item">
+                <span>Formato</span>
+                <span id="footer-format">9:16</span>
+            </div>
+            <div class="pc-footer-item">
+                <span>Velocidad</span>
+                <span id="footer-speed">100 PPM</span>
+            </div>
+        </footer>
+
     </main>
 
-    <!-- Scripts de Control Separados para Mantenimiento Escalable -->
+    <!-- Enlace a la lógica del sistema cargada localmente -->
     <script src="app.js"></script>
 </body>
 </html>
