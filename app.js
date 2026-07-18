@@ -1,9 +1,9 @@
 /* ==========================================================================
-   TELEPROMPTER PRO V9 - MOTOR DE CONTROL TOTAL Y CONMUTADOR COMPLETO
+   TELEPROMPTER PRO V9 - CONMUTADOR, GRABACIÓN HD Y CONTROL DE TEXTO
    ========================================================================== */
 
 document.addEventListener('DOMContentLoaded', () => {
-    console.log("Iniciando motor unificado de Teleprompter Pro v9...");
+    console.log("Iniciando motor multimedia y prompter avanzado...");
 
     // 1. CAPTURA DE ELEMENTOS DEL DOM
     const videoElement = document.getElementById('video');
@@ -14,36 +14,102 @@ document.addEventListener('DOMContentLoaded', () => {
     const btnPause = document.getElementById('btnPause');
     const btnReset = document.getElementById('btnReset');
     const btnStop = document.getElementById('btnStop');
-    
-    // Capturamos ambos botones de cámara del HTML
     const btnToggleCamera = document.getElementById('btnToggleCamera');
     const btnCamTrigger = document.getElementById('btnCamTrigger');
+
+    // Elementos del Prompter Flotante y Configuración
+    const prompterOverlay = document.getElementById('prompterOverlay');
+    const prompterScroll = document.getElementById('prompterScroll');
+    const scriptInput = document.getElementById('scriptInput');
+    const fontSizeInput = document.getElementById('fontSize');
+    const fontSizeVal = document.getElementById('fontSizeVal') || {};
+    const scrollSpeedInput = document.getElementById('scrollSpeed');
+    
+    // Controles de Transparencia Nuevos
+    const bgOpacityInput = document.getElementById('bgOpacity');
+    const bgOpacityVal = document.getElementById('bgOpacityVal') || {};
 
     // 2. ESTADO GLOBAL DE LA APLICACIÓN
     let stream = null;
     let mediaRecorder = null;
     let recordedChunks = [];
     let isRecording = false;
+    let isPaused = false;
     
-    let videoDevices = []; // Almacén para la rotación de cámaras
+    let videoDevices = []; 
     let currentCameraIndex = 0;
 
-    // 3. ESCANEO DE HARDWARE DISPONIBLE (Cámaras y Micrófonos)
+    // Estado de la animación del Prompter
+    let scrollInterval = null;
+    let currentScrollY = 0;
+
+    // 3. CONTROL DE TEXTO, OPACIDAD Y FUENTE
+    function updatePrompterText() {
+        if (prompterScroll && scriptInput) {
+            prompterScroll.innerText = scriptInput.value;
+        }
+    }
+
+    if (scriptInput) {
+        scriptInput.addEventListener('input', updatePrompterText);
+        updatePrompterText(); // Carga inicial
+    }
+
+    if (fontSizeInput) {
+        fontSizeInput.addEventListener('input', () => {
+            const size = fontSizeInput.value + 'rem';
+            if (prompterScroll) prompterScroll.style.fontSize = size;
+            if (fontSizeVal) fontSizeVal.innerText = size;
+        });
+    }
+
+    if (bgOpacityInput) {
+        bgOpacityInput.addEventListener('input', () => {
+            const opacityPct = bgOpacityInput.value;
+            if (bgOpacityVal) bgOpacityVal.innerText = opacityPct + '%';
+            if (prompterOverlay) {
+                // Ajusta el canal alfa (rgba) del fondo dinámicamente usando el slider
+                prompterOverlay.style.backgroundColor = `rgba(3, 7, 18, ${opacityPct / 100})`;
+            }
+        });
+    }
+
+    // 4. ANIMACIÓN DEL DESPLAZAMIENTO DEL TEXTO
+    function startPrompterAnimation() {
+        if (scrollInterval) clearInterval(scrollInterval);
+        
+        const speedFactor = scrollSpeedInput ? parseInt(scrollSpeedInput.value) : 100;
+        // Mapeo simple de velocidad píxel por ciclo
+        const intervalDelay = 40; 
+        const step = (speedFactor / 100) * 1.2; 
+
+        scrollInterval = setInterval(() => {
+            if (!isPaused && isRecording) {
+                currentScrollY -= step;
+                if (prompterScroll) {
+                    prompterScroll.style.transform = `translateY(${currentScrollY}px)`;
+                }
+            }
+        }, intervalDelay);
+    }
+
+    function stopPrompterAnimation(resetPos = false) {
+        if (scrollInterval) clearInterval(scrollInterval);
+        if (resetPos) {
+            currentScrollY = 0;
+            if (prompterScroll) prompterScroll.style.transform = `translateY(0px)`;
+        }
+    }
+
+    // 5. ESCANEO DE HARDWARE DISPONIBLE
     async function initHardware() {
         try {
-            if (!navigator.mediaDevices || !navigator.mediaDevices.enumerateDevices) {
-                console.warn("El navegador no soporta acceso multimedia nativo.");
-                return;
-            }
-            
+            if (!navigator.mediaDevices || !navigator.mediaDevices.enumerateDevices) return;
             const devices = await navigator.mediaDevices.enumerateDevices();
-            videoDevices = []; // Limpiar arreglo
-            
+            videoDevices = [];
             if (videoSource) videoSource.innerHTML = '';
-            
-            let camCount = 0;
-            let micCount = 0;
 
+            let camCount = 0;
             devices.forEach(device => {
                 if (device.kind === 'videoinput') {
                     videoDevices.push(device);
@@ -54,54 +120,32 @@ document.addEventListener('DOMContentLoaded', () => {
                         option.text = device.label || `Cámara ${camCount}`;
                         videoSource.appendChild(option);
                     }
-                } else if (device.kind === 'audioinput') {
-                    micCount++;
-                    // Solo llenamos el select si existe un contenedor para el audio
-                    if (audioSource && audioSource.tagName === 'SELECT') {
-                        const option = document.createElement('option');
-                        option.value = device.deviceId;
-                        option.text = device.label || `Micrófono ${micCount}`;
-                        audioSource.appendChild(option);
-                    }
                 }
             });
-            
-            console.log(`Hardware detectado: ${videoDevices.length} cámaras mapeadas.`);
         } catch (error) {
             console.error("Error al escanear periféricos:", error);
         }
     }
 
-    // 4. CONTROL DE ENCENDIDO ULTRA RÁPIDO DE CÁMARA
+    // 6. CONTROL DE LA CÁMARA
     async function startCameraId(deviceId) {
-        if (stream) {
-            stream.getTracks().forEach(track => track.stop());
-        }
-
-        const audioId = (audioSource && audioSource.value) ? audioSource.value : null;
-        
-        // Configuración elástica inteligente: abre al instante sin retrasos
+        if (stream) stream.getTracks().forEach(track => track.stop());
         const constraints = {
             video: {
                 deviceId: deviceId ? { exact: deviceId } : undefined,
                 width: { ideal: 1920 },
-                height: { ideal: 1080 },
-                frameRate: { ideal: 30 }
+                height: { ideal: 1080 }
             },
-            audio: audioId ? { deviceId: { exact: audioId } } : true
+            audio: true
         };
-
         try {
             stream = await navigator.mediaDevices.getUserMedia(constraints);
-            
             if (videoElement) {
                 videoElement.srcObject = stream;
                 videoElement.setAttribute('playsinline', true);
                 await videoElement.play();
             }
-            console.log("Cámara vinculada al visor con éxito.");
         } catch (err) {
-            console.error("Fallo de arranque ideal, aplicando respaldo inmediato:", err);
             fallbackCamera();
         }
     }
@@ -109,42 +153,20 @@ document.addEventListener('DOMContentLoaded', () => {
     async function fallbackCamera() {
         try {
             stream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
-            if (videoElement) {
-                videoElement.srcObject = stream;
-                await videoElement.play();
-            }
-        } catch (e) {
-            console.error("Imposible acceder a la cámara del dispositivo:", e);
-        }
+            if (videoElement) { videoElement.srcObject = stream; await videoElement.play(); }
+        } catch (e) { console.error("Error en cámara:", e); }
     }
 
-    // 5. FUNCIÓN CENTRAL DE CAMBIO DE CÁMARA (ROTACIÓN DE ÍNDICES)
     function switchCamera() {
-        if (videoDevices.length <= 1) {
-            console.log("No hay múltiples cámaras disponibles para alternar.");
-            return;
-        }
-
-        // Saltamos al siguiente lente de la lista
+        if (videoDevices.length <= 1) return;
         currentCameraIndex = (currentCameraIndex + 1) % videoDevices.length;
-        const nextDevice = videoDevices[currentCameraIndex];
-        
-        // Sincronizamos visualmente el menú desplegable de la derecha
-        if (videoSource) {
-            videoSource.value = nextDevice.deviceId;
-        }
-
-        console.log(`Cambiando a: ${nextDevice.label || 'Siguiente cámara'}`);
-        startCameraId(nextDevice.deviceId);
+        if (videoSource) videoSource.value = videoDevices[currentCameraIndex].deviceId;
+        startCameraId(videoDevices[currentCameraIndex].deviceId);
     }
 
-    // 6. MOTOR DE GRABACIÓN DE ALTA CALIDAD (10 Mbps)
+    // 7. MOTOR DE GRABACIÓN HD (10 Mbps)
     function startRecording() {
-        if (!stream) {
-            alert("Primero debes activar los permisos o encender la cámara.");
-            return;
-        }
-        
+        if (!stream) return;
         recordedChunks = [];
         let options = { mimeType: 'video/webm', videoBitsPerSecond: 10000000 };
         
@@ -156,15 +178,10 @@ document.addEventListener('DOMContentLoaded', () => {
 
         try {
             mediaRecorder = new MediaRecorder(stream, options);
-            
-            mediaRecorder.ondataavailable = (event) => {
-                if (event.data.size > 0) recordedChunks.push(event.data);
-            };
-
+            mediaRecorder.ondataavailable = (e) => { if (e.data.size > 0) recordedChunks.push(e.data); };
             mediaRecorder.onstop = () => {
                 const blob = new Blob(recordedChunks, { type: mediaRecorder.mimeType || 'video/webm' });
                 const url = URL.createObjectURL(blob);
-                
                 const a = document.createElement('a');
                 a.href = url;
                 const ext = (mediaRecorder.mimeType && mediaRecorder.mimeType.includes('mp4')) ? 'mp4' : 'webm';
@@ -174,59 +191,44 @@ document.addEventListener('DOMContentLoaded', () => {
 
             mediaRecorder.start(1000);
             isRecording = true;
+            isPaused = false;
             
             if (btnStart) btnStart.innerHTML = '<span class="btn-dot"></span> GRABANDO';
             if (btnStop) btnStop.disabled = false;
-        } catch (e) {
-            console.error("Error al iniciar grabación:", e);
-        }
+            
+            // Iniciar desplazamiento de letras
+            startPrompterAnimation();
+        } catch (e) { console.error("Error al grabar:", e); }
     }
 
     function stopRecording() {
         if (mediaRecorder && isRecording) {
             mediaRecorder.stop();
             isRecording = false;
+            stopPrompterAnimation(false);
             if (btnStart) btnStart.innerHTML = '<span class="btn-dot"></span> GRABAR';
             if (btnStop) btnStop.disabled = true;
         }
     }
 
-    // 7. ASIGNACIÓN ASÍNCRONA DE EVENTOS (TOTALMENTE INDEPENDIENTE DEL TEXTO)
-    const handleCameraTrigger = () => {
-        if (!stream) {
-            if (videoDevices.length > 0) {
-                startCameraId(videoDevices[currentCameraIndex].deviceId);
-            } else {
-                startCameraId(null);
-            }
-        } else {
-            switchCamera();
-        }
-    };
-
+    // 8. ESCUCHAS DE EVENTOS DE BOTONERA
+    const handleCameraTrigger = () => { if (!stream) startCameraId(null); else switchCamera(); };
     if (btnToggleCamera) btnToggleCamera.addEventListener('click', handleCameraTrigger);
     if (btnCamTrigger) btnCamTrigger.addEventListener('click', handleCameraTrigger);
 
-    if (btnStart) {
-        btnStart.addEventListener('click', () => {
-            if (!isRecording) startRecording();
-        });
-    }
-
-    if (btnStop) {
-        btnStop.addEventListener('click', () => {
-            if (isRecording) stopRecording();
-        });
-    }
+    if (btnStart) btnStart.addEventListener('click', () => { if (!isRecording) startRecording(); });
+    if (btnStop) btnStop.addEventListener('click', stopRecording);
 
     if (btnPause) {
         btnPause.addEventListener('click', () => {
             if (mediaRecorder && isRecording) {
                 if (mediaRecorder.state === 'recording') {
                     mediaRecorder.pause();
+                    isPaused = true;
                     btnPause.innerHTML = '▶ REANUDAR';
                 } else if (mediaRecorder.state === 'paused') {
                     mediaRecorder.resume();
+                    isPaused = false;
                     btnPause.innerHTML = '⏸ PAUSA';
                 }
             }
@@ -236,24 +238,15 @@ document.addEventListener('DOMContentLoaded', () => {
     if (btnReset) {
         btnReset.addEventListener('click', () => {
             stopRecording();
-            if (videoDevices.length > 0) {
-                startCameraId(videoDevices[currentCameraIndex].deviceId);
-            }
+            stopPrompterAnimation(true);
+            if (videoDevices.length > 0) startCameraId(videoDevices[currentCameraIndex].deviceId);
         });
     }
 
-    if (videoSource) {
-        videoSource.addEventListener('change', () => {
-            startCameraId(videoSource.value);
-        });
-    }
+    if (videoSource) videoSource.addEventListener('change', () => startCameraId(videoSource.value));
 
-    // 8. EJECUCIÓN AUTOMÁTICA INICIAL
+    // 9. INICIO
     initHardware().then(() => {
-        setTimeout(() => {
-            if (videoDevices.length > 0) {
-                startCameraId(videoDevices[0].deviceId); // Arranca directo con el primer lente
-            }
-        }, 400);
+        setTimeout(() => { if (videoDevices.length > 0) startCameraId(videoDevices[0].deviceId); }, 400);
     });
 });
