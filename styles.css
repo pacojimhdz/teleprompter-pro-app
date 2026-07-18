@@ -1,215 +1,219 @@
-/* Variables CSS Reutilizables para Cambios de Tema (Etapa 4) */
+/* ==========================================================================
+   TELEPROMPTER PRO V9 - FIEL A LAS CAPTURAS DE DISEÑO
+   ========================================================================== */
 :root {
-    --bg-main: #121214;
-    --bg-card: #202024;
-    --bg-input: #121214;
-    --border-color: #29292e;
-    --text-primary: #e1e1e6;
-    --text-muted: #a8a8b3;
-    --accent: #00e676;
-    --accent-blue: #00b0ff;
+    --bg-main: #02050e;
+    --bg-card: #080f24;
+    --bg-input: #040817;
+    --text-main: #ffffff;
+    --text-muted: #627293;
+    --neon-blue: #1a8cff;
+    --neon-purple: #9d4edd;
+    --neon-green: #00e676;
+    --neon-pink: #ff007f;
+    --accent-red: #d32f2f;
+    --accent-yellow: #fbc02d;
+    --font-stack: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
 }
 
-.theme-oled {
-    --bg-main: #000000;
-    --bg-card: #0c0c0d;
-    --bg-input: #000000;
-    --border-color: #1c1c1e;
+/* Restablecimiento general */
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+    font-family: var(--font-stack);
 }
-
-.theme-light {
-    --bg-main: #f0f2f5;
-    --bg-card: #ffffff;
-    --bg-input: #f0f2f5;
-    --border-color: #dcdce2;
-    --text-primary: #1c1c1e;
-    --text-muted: #62626a;
-}
-
-* { box-sizing: border-box; margin: 0; padding: 0; }
 
 body {
-    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
     background-color: var(--bg-main);
-    color: var(--text-primary);
+    color: var(--text-main);
+    padding: 15px;
+    min-height: 100vh;
     display: flex;
     flex-direction: column;
-    align-items: center;
-    min-height: 100vh;
-    padding: 15px;
-    overflow-x: hidden;
-    transition: background-color 0.3s, color 0.3s;
 }
 
+/* TEMAS ASOCIADOS A LOS BOTONES DE LA SECCIÓN 4 */
+body.theme-oled {
+    --bg-main: #000000;
+    --bg-card: #09090b;
+    --bg-input: #121214;
+}
+body.theme-light {
+    --bg-main: #f4f6fa;
+    --bg-card: #ffffff;
+    --bg-input: #f0f2f5;
+    --text-main: #1e293b;
+    --text-muted: #64748b;
+}
+
+/* HEADER */
 .app-header {
-    width: 100%;
-    max-width: 650px;
     display: flex;
     justify-content: space-between;
     align-items: center;
-    margin-bottom: 10px;
+    margin-bottom: 15px;
 }
 
-h1 { font-size: 1.4rem; color: var(--accent); }
+.app-header h1 {
+    font-size: 1.4rem;
+    font-weight: 700;
+    letter-spacing: 0.5px;
+}
+
+.header-badges {
+    display: flex;
+    gap: 10px;
+}
 
 .badge {
+    background: #0d1b3e;
+    padding: 5px 12px;
+    border-radius: 8px;
     font-size: 0.75rem;
-    background: var(--bg-card);
-    padding: 4px 8px;
-    border-radius: 4px;
-    border: 1px solid var(--border-color);
-    font-weight: bold;
+    font-weight: 600;
+    color: #ffffff;
+    border: 1px solid #1e293b;
 }
 
-.main-layout { 
-    width: 100%; 
-    max-width: 650px; 
-    margin: 0 auto;
+/* LAYOUT GENERAL */
+.main-layout {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    flex: 1;
 }
 
+/* CONTENEDOR DE CÁMARA Y MONITOR */
 .viewport-wrapper-layout {
     display: flex;
     flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    gap: 15px; 
-    width: 100%;
-    margin-bottom: 15px;
-    position: relative;
+    gap: 15px;
 }
 
+/* Marco de Neón Envolvente Inteligente (idéntico a tus capturas) */
 .viewport-outer-container {
-    width: 100%;
-    display: flex;
-    justify-content: center;
-    align-items: center;
+    background: var(--bg-card);
+    padding: 12px;
+    border-radius: 20px;
+    border: 2px solid transparent;
+    background-image: linear-gradient(var(--bg-card), var(--bg-card)), linear-gradient(135deg, #00f2fe 0%, #4facfe 30%, #7928ca 70%, #ff007f 100%);
+    background-origin: border-box;
+    background-clip: content-box, border-box;
+    box-shadow: 0px 0px 25px rgba(121, 40, 202, 0.25);
 }
 
 .viewport-outer {
     width: 100%;
-    background-color: #09090a;
-    border-radius: 12px;
-    border: 3px solid var(--border-color);
-    box-shadow: 0 8px 24px rgba(0,0,0,0.6);
+    position: relative;
     overflow: hidden;
-    transition: all 0.3s ease;
+    border-radius: 14px;
+    background: #000000;
+}
+
+/* Relación de aspecto del video */
+.viewport-outer.format-16-9 { aspect-ratio: 16 / 9; }
+.viewport-outer.format-9-16 { aspect-ratio: 9 / 16; max-width: 400px; margin: 0 auto; }
+
+.viewport-container {
+    width: 100%;
+    height: 100%;
     position: relative;
 }
 
-.format-16-9 { aspect-ratio: 16 / 9; width: 100%; }
-.format-9-16 { aspect-ratio: 9 / 16; width: 320px; max-height: 70vh; }
-
-.viewport-container { position: relative; width: 100%; height: 100%; cursor: pointer; }
-
-video { 
-    width: 100%; 
-    height: 100%; 
-    object-fit: cover; 
-    background-color: transparent; 
+#video {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
 }
 
+/* LÍNEAS GUÍA DE LECTURA ROJAS DE TUS CAPTURAS */
+.reading-guide {
+    position: absolute;
+    top: 30%;
+    left: 0;
+    width: 100%;
+    height: 35%;
+    border-top: 2px solid #ef4444;
+    border-bottom: 2px solid #ef4444;
+    pointer-events: none;
+    z-index: 5;
+}
+
+/* CAPA DEL TELEPROMPTER */
 .prompter-overlay {
-    position: absolute; top: 0; left: 0; width: 100%; height: 100%;
-    background-color: rgba(0, 0, 0, 0.65); display: flex;
-    justify-content: center; align-items: flex-start; overflow: hidden; pointer-events: none;
-    opacity: 0; transition: opacity 0.3s ease;
+    position: absolute;
+    top: 0; left: 0; right: 0; bottom: 0;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    background: rgba(0, 0, 0, 0.2);
+    pointer-events: none;
 }
 
 .prompter-text {
-    position: absolute; top: 0; width: 85%; text-align: center;
-    font-size: 1.6rem; font-weight: 700; line-height: 1.5; color: #00ff00;
-    text-shadow: 2px 2px 4px #000, -2px -2px 4px #000; white-space: pre-wrap;
-    transform: translateY(0px); will-change: transform;
+    width: 85%;
+    color: #00ffa3;
+    font-weight: 700;
+    font-size: 1.5rem;
+    text-align: center;
+    line-height: 1.4;
+    text-shadow: 0px 2px 4px rgba(0,0,0,1);
 }
 
-.reading-guide {
-    position: absolute; top: 25%; left: 5%; width: 90%; height: 65px;
-    border-top: 3px solid #ff1744; border-bottom: 3px solid #ff1744;
-    background-color: rgba(255, 23, 68, 0.04); pointer-events: none; z-index: 2;
-}
-
-.format-9-16 .prompter-text { width: 90%; }
-.format-9-16 .reading-guide { height: 55px; }
-
-/* Botones flotantes unificados en texto negro */
+/* BOTONES PRINCIPALES DE ACCIÓN TÁCTIL */
 .external-floating-controls {
-    display: flex;
-    flex-direction: row;
-    gap: 12px;
-    justify-content: center;
-    width: 100%;
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 8px;
 }
 
 .btn-floating {
-    width: 65px;
-    height: 65px;
-    border-radius: 50%;
-    border: none;
+    background: var(--bg-card);
+    border: 1px solid #1e293b;
+    color: var(--text-main);
+    padding: 12px 4px;
+    border-radius: 12px;
+    font-size: 0.7rem;
+    font-weight: 700;
+    letter-spacing: 0.5px;
     cursor: pointer;
-    box-shadow: 0 4px 12px rgba(0,0,0,0.5);
-    transition: all 0.2s ease;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    color: #000000;
-    font-size: 0.70rem;
-    font-weight: bold;
-    text-transform: uppercase;
-    text-align: center;
-    line-height: 1.1;
-    padding: 4px;
-}
-
-.btn-floating:active { transform: scale(0.92); }
-.btn-floating:disabled { opacity: 0.3; cursor: not-allowed; box-shadow: none; }
-
-.btn-start { background-color: #ff8888; border: 2px solid #e53935; } 
-.btn-pause { background-color: #ffcc00; border: 2px solid #ff8f00; } 
-.btn-reset { background-color: #8bbfff; border: 2px solid #1e88e5; } 
-.btn-stop  { background-color: #cccccc; border: 2px solid #888888; }
-.btn-camera { background-color: #a3e2a4; border: 2px solid #4caf50; }
-
-/* Overlays informativos */
-.countdown-overlay {
-    position: absolute; top: 0; left: 0; width: 100%; height: 100%;
-    background-color: rgba(0,0,0,0.8); display: flex; justify-content: center;
-    align-items: center; font-size: 5rem; font-weight: bold; color: #ff1744;
-    z-index: 10; display: none;
-}
-
-.pause-indicator {
-    position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
-    background-color: rgba(0, 0, 0, 0.75); color: #ffbc00;
-    padding: 10px 20px; border-radius: 8px; font-weight: bold; font-size: 1rem;
-    border: 2px solid #ffbc00; z-index: 8; display: none; pointer-events: none;
-    text-align: center; width: 80%;
-}
-
-.recording-badge { 
-    position: absolute; top: 15px; right: 15px; background-color: #e53935; 
-    color: white; padding: 4px 8px; border-radius: 4px; font-size: 0.75rem; 
-    font-weight: bold; display: none; z-index: 5; 
-}
-
-/* Tarjetas de control y secciones */
-.controls-card { 
-    background-color: var(--bg-card); 
-    border-radius: 12px; 
-    padding: 15px; 
-    border: 1px solid var(--border-color);
     display: flex;
     flex-direction: column;
-    gap: 20px;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+}
+
+.btn-floating .control-icon {
+    font-size: 1.1rem;
+}
+
+/* Bordes izquierdos de color de tus capturas */
+.btn-start { border-left: 4px solid var(--neon-pink); }
+.btn-pause { border-left: 4px solid var(--accent-yellow); }
+.btn-reset { border-left: 4px solid var(--neon-blue); }
+.btn-camera { border-left: 4px solid var(--neon-green); }
+.btn-stop { border-left: 4px solid #64748b; }
+
+/* CONTENEDOR DE SECCIONES DE CONFIGURACIÓN */
+.controls-card {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
 }
 
 .control-section {
-    border-bottom: 1px solid var(--border-color);
-    padding-bottom: 15px;
+    background: var(--bg-card);
+    border-radius: 14px;
+    padding: 15px;
+    border: 1px solid rgba(255, 255, 255, 0.02);
 }
-.control-section:last-child { border: none; padding-bottom: 0; }
 
 .control-section h3 {
-    font-size: 0.95rem;
+    font-size: 0.9rem;
+    font-weight: 600;
     margin-bottom: 12px;
     display: flex;
     align-items: center;
@@ -217,47 +221,214 @@ video {
 }
 
 .step-tag {
-    background: var(--border-color);
-    padding: 2px 6px;
-    border-radius: 4px;
+    background: #2563eb;
+    color: #ffffff;
+    width: 20px;
+    height: 20px;
+    border-radius: 6px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
     font-size: 0.75rem;
+    font-weight: 700;
+}
+
+/* ELEMENTOS DE FORMULARIO */
+.options-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+    margin-bottom: 8px;
+}
+
+.option-box {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+label {
+    font-size: 0.7rem;
     color: var(--text-muted);
+    font-weight: 500;
 }
-
-label { display: block; font-size: 0.85rem; margin-bottom: 6px; color: var(--text-muted); font-weight: 600; }
-
-textarea {
-    width: 100%; height: 110px; padding: 10px; border-radius: 6px; border: 1px solid var(--border-color);
-    background-color: var(--bg-input); color: var(--text-primary); font-size: 0.9rem; resize: vertical; line-height: 1.4;
-}
-
-.options-row { display: flex; gap: 10px; margin-bottom: 12px; flex-wrap: wrap; }
-.option-box { flex: 1; min-width: 140px; background-color: var(--bg-input); padding: 10px; border-radius: 6px; }
 
 select {
-    width: 100%; background-color: var(--bg-card); color: var(--text-primary); border: 1px solid var(--border-color);
-    padding: 8px; border-radius: 4px; font-size: 0.85rem; font-weight: bold; outline: none;
+    background: var(--bg-input);
+    border: 1px solid #1e293b;
+    color: var(--text-main);
+    padding: 10px;
+    border-radius: 8px;
+    font-size: 0.8rem;
+    outline: none;
+    width: 100%;
 }
 
-.setting-row { 
-    display: flex; justify-content: space-between; align-items: center; 
-    background-color: var(--bg-input); padding: 10px; border-radius: 6px; margin-bottom: 12px; gap: 15px; 
+/* DESLIZADORES */
+.setting-row {
+    margin-bottom: 12px;
 }
 
-.duration-badge { font-size: 0.8rem; color: var(--accent); margin-top: 3px; font-weight: bold; }
-.font-badge { font-size: 0.8rem; color: var(--accent-blue); margin-top: 3px; font-weight: bold; }
+.setting-info {
+    display: flex;
+    justify-content: space-between;
+    font-size: 0.75rem;
+    margin-bottom: 4px;
+}
 
-input[type="range"] { flex: 1; accent-color: var(--accent); cursor: pointer; }
-.range-blue { accent-color: var(--accent-blue) !important; }
+input[type="range"] {
+    -webkit-appearance: none;
+    width: 100%;
+    height: 5px;
+    background: var(--bg-input);
+    border-radius: 4px;
+    outline: none;
+}
 
-.script-manager-bar { display: flex; gap: 10px; margin-bottom: 10px; }
+input[type="range"]::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    width: 14px;
+    height: 14px;
+    border-radius: 50%;
+    background: #ffffff;
+    cursor: pointer;
+}
+
+/* EDITOR DE GUIONES */
+textarea {
+    background: var(--bg-input);
+    border: 1px solid #1e293b;
+    color: var(--text-main);
+    padding: 12px;
+    border-radius: 8px;
+    font-size: 0.85rem;
+    width: 100%;
+    height: 100px;
+    resize: none;
+    outline: none;
+}
+
+.script-manager-bar {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 8px;
+}
+
 .btn-action {
-    padding: 6px 12px; font-size: 0.8rem; font-weight: bold; border-radius: 4px; border: none; cursor: pointer;
-    background: var(--accent-blue); color: #000;
+    flex: 1;
+    background: var(--bg-input);
+    border: 1px solid #1e293b;
+    color: var(--text-main);
+    padding: 8px;
+    border-radius: 6px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    cursor: pointer;
 }
-.btn-danger { background: #ff1744; color: #fff; }
 
-@media (min-width: 768px) {
-    .viewport-wrapper-layout { flex-direction: row; align-items: center; }
-    .external-floating-controls { flex-direction: column; width: auto; }
+.btn-danger {
+    border-color: #ef4444;
+    color: #ef4444;
+}
+
+/* TELEMETRÍA INFERIOR DE RESPALDO */
+.pc-info-footer-bar {
+    display: none;
+}
+
+
+/* ==========================================================================
+   OPTIMIZACIÓN DE PANTALLA COMPLETA PARA PC O LAPTOP
+   ========================================================================== */
+@media (min-width: 1024px) {
+    body {
+        padding: 25px;
+        height: 100vh;
+        overflow: hidden;
+    }
+
+    /* Estructura dividida de PC */
+    .main-layout {
+        display: grid;
+        grid-template-columns: 1fr 450px;
+        gap: 20px;
+        flex: 1;
+        align-items: start;
+    }
+
+    /* Caja izquierda: Monitor + Botonera vertical a un costado */
+    .viewport-wrapper-layout {
+        display: grid;
+        grid-template-columns: 1fr auto;
+        gap: 15px;
+        align-items: stretch;
+    }
+
+    .viewport-outer-container {
+        height: calc(100vh - 170px);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .viewport-outer.format-16-9 {
+        width: 100%;
+        height: 100%;
+    }
+
+    /* Botones alineados verticalmente a la derecha del video */
+    .external-floating-controls {
+        grid-template-columns: 1fr;
+        width: 105px;
+        height: 100%;
+        justify-content: space-between;
+    }
+
+    .btn-floating {
+        height: 18%;
+        font-size: 0.75rem;
+    }
+
+    /* Caja derecha fija con scroll individual para las configuraciones */
+    .controls-card {
+        height: calc(100vh - 170px);
+        overflow-y: auto;
+        padding-right: 4px;
+    }
+
+    /* Barra inferior de telemetría de datos rápidos de PC */
+    .pc-info-footer-bar {
+        display: flex;
+        grid-column: 1 / span 2;
+        background: var(--bg-card);
+        border: 1px solid #1e293b;
+        border-radius: 10px;
+        padding: 12px;
+        margin-top: auto;
+        justify-content: flex-start;
+        gap: 40px;
+    }
+
+    .pc-footer-item {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        background: var(--bg-input);
+        padding: 6px 15px;
+        border-radius: 6px;
+        border: 1px solid rgba(255, 255, 255, 0.03);
+    }
+
+    .pc-footer-item span:first-child {
+        font-size: 0.65rem;
+        color: var(--text-muted);
+        text-transform: uppercase;
+        font-weight: 600;
+    }
+
+    .pc-footer-item span:last-child {
+        font-size: 0.85rem;
+        font-weight: 700;
+        color: var(--text-main);
+    }
 }
