@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Teleprompter Pro v9</title>
-    <link rel="stylesheet" href="styles.css?v=9.2">
+    <link rel="stylesheet" href="styles.css?v=9.3">
 </head>
 <body class="theme-dark-pro">
 
@@ -30,53 +30,57 @@
         
         <!-- COLUMNA IZQUIERDA: MONITOR Y BOTONES PRINCIPALES -->
         <div class="left-column">
-            <div class="video-card-glow">
-                <div class="video-card-inner">
-                    <div class="top-badges">
-                        <span class="v-badge">1080p (Full HD)</span>
-                        <span class="v-badge">30 FPS</span>
-                        <span class="v-badge battery">52%</span>
-                    </div>
-                    
-                    <!-- Etiqueta de video nativa para la webcam -->
-                    <video id="video" autoplay playsinline muted></video>
-                    
-                    <!-- CAPA SUPERPUESTA DEL TELEPROMPTER -->
-                    <div id="prompterOverlay" class="prompter-overlay">
-                        <div id="prompterScroll" class="prompter-scroll">
-                            INGRESA AQUI EL TEXTO DE TU GUION
+            
+            <div class="monitor-and-actions">
+                <!-- El Visor con Borde de Neón Gradiente -->
+                <div class="video-card-glow">
+                    <div class="video-card-inner">
+                        <div class="top-badges">
+                            <span class="v-badge">1080p (Full HD)</span>
+                            <span class="v-badge">30 FPS</span>
+                            <span class="v-badge battery">52%</span>
+                        </div>
+                        
+                        <!-- Etiqueta de video nativa para la webcam -->
+                        <video id="video" autoplay playsinline muted></video>
+                        
+                        <!-- CAPA SUPERPUESTA DEL TELEPROMPTER -->
+                        <div id="prompterOverlay" class="prompter-overlay">
+                            <div id="prompterScroll" class="prompter-scroll">
+                                INGRESA AQUI EL TEXTO DE TU GUION
+                            </div>
+                        </div>
+                        
+                        <!-- Líneas guía rojas -->
+                        <div class="guide-line line-top"></div>
+                        <div class="guide-line line-bottom"></div>
+                        
+                        <div class="bottom-badges">
+                            <button class="grid-btn">⛶</button>
+                            <button class="cam-trigger-btn" id="btnCamTrigger">📷</button>
+                            <button class="flip-btn">🔄</button>
                         </div>
                     </div>
-                    
-                    <!-- Líneas guía rojas -->
-                    <div class="guide-line line-top"></div>
-                    <div class="guide-line line-bottom"></div>
-                    
-                    <div class="bottom-badges">
-                        <button class="grid-btn">⛶</button>
-                        <button class="cam-trigger-btn" id="btnCamTrigger">📷</button>
-                        <button class="flip-btn">🔄</button>
-                    </div>
                 </div>
-            </div>
 
-            <!-- Botones de Control Verticales -->
-            <div class="vertical-control-panel">
-                <button id="btnStart" class="action-btn red-btn">
-                    <span class="btn-dot"></span> GRABAR
-                </button>
-                <button id="btnPause" class="action-btn yellow-btn">
-                    Local ⏸ PAUSA
-                </button>
-                <button id="btnReset" class="action-btn blue-btn">
-                    🔄 REINICIAR
-                </button>
-                <button id="btnToggleCamera" class="action-btn green-btn">
-                    📷 CÁMARA
-                </button>
-                <button id="btnStop" class="action-btn gray-btn" disabled>
-                    💾 GUARDAR
-                </button>
+                <!-- Botones de Control Verticales -->
+                <div class="vertical-control-panel">
+                    <button id="btnStart" class="action-btn red-btn">
+                        <span class="btn-dot"></span> GRABAR
+                    </button>
+                    <button id="btnPause" class="action-btn yellow-btn">
+                        ⏸ PAUSA
+                    </button>
+                    <button id="btnReset" class="action-btn blue-btn">
+                        🔄 REINICIAR
+                    </button>
+                    <button id="btnToggleCamera" class="action-btn green-btn">
+                        📷 CAMBIAR CÁMARA
+                    </button>
+                    <button id="btnStop" class="action-btn gray-btn" disabled>
+                        💾 GUARDAR
+                    </button>
+                </div>
             </div>
 
             <!-- Barra de Telemetría Inferior -->
@@ -92,7 +96,7 @@
         <!-- COLUMNA DERECHA: CONFIGURACIONES -->
         <div class="right-column">
             
-            <!-- SECCIÓN 1: HARDWARE -->
+            <!-- SECCIÓN 1 -->
             <div class="config-card">
                 <div class="card-header">
                     <h3><span class="num-tag blue-tag">1</span> Hardware y Captura</h3>
@@ -110,7 +114,7 @@
                 </div>
             </div>
 
-            <!-- SECCIÓN 2: PERSONALIZACIÓN (CON NUEVO SLIDER) -->
+            <!-- SECCIÓN 2 -->
             <div class="config-card">
                 <div class="card-header">
                     <h3><span class="num-tag purple-tag">2</span> Personalización del Prompter</h3>
@@ -124,7 +128,6 @@
                         <div class="slider-meta"><label>Velocidad de Lectura</label><span>100 PPM</span></div>
                         <input type="range" id="scrollSpeed" min="50" max="200" step="5" value="100">
                     </div>
-                    <!-- NUEVO CONTROL DE TRANSPARENCIA -->
                     <div class="slider-group">
                         <div class="slider-meta"><label>Fondo del Texto (Opacidad)</label><span id="bgOpacityVal">50%</span></div>
                         <input type="range" id="bgOpacity" min="0" max="100" step="5" value="50">
@@ -132,7 +135,7 @@
                 </div>
             </div>
 
-            <!-- SECCIÓN 3: EDITOR -->
+            <!-- SECCIÓN 3 -->
             <div class="config-card">
                 <div class="card-header">
                     <h3><span class="num-tag purple-inner-tag">3</span> Editor de Guiones</h3>
@@ -144,7 +147,6 @@
         </div>
     </div>
 
-    <!-- Carga del script con enlace absoluto -->
     <script src="app.js" defer></script>
 </body>
 </html>
