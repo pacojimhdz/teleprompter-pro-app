@@ -1,197 +1,249 @@
-:root {
-    --bg-app: #030712;
-    --bg-card: #0b1329;
-    --bg-input: #070d1e;
-    --border-color: #16223f;
-    --text-primary: #ffffff;
-    --text-muted: #64748b;
+/* ==========================================================================
+   TELEPROMPTER PRO V9 - CONMUTACIÓN, GRABACIÓN HD Y DESPLAZAMIENTO DE TEXTO
+   ========================================================================== */
+
+document.addEventListener('DOMContentLoaded', () => {
+    console.log("Iniciando motor completo unificado...");
+
+    // 1. CAPTURA DE ELEMENTOS DEL DOM
+    const videoElement = document.getElementById('video');
+    const videoSource = document.getElementById('videoSource');
+    const audioSource = document.getElementById('audioSource');
+
+    const btnStart = document.getElementById('btnStart');
+    const btnPause = document.getElementById('btnPause');
+    const btnReset = document.getElementById('btnReset');
+    const btnStop = document.getElementById('btnStop');
+    const btnToggleCamera = document.getElementById('btnToggleCamera');
+    const btnCamTrigger = document.getElementById('btnCamTrigger');
+
+    // Capas de Texto y Sliders
+    const prompterOverlay = document.getElementById('prompterOverlay');
+    const prompterScroll = document.getElementById('prompterScroll');
+    const scriptInput = document.getElementById('scriptInput');
+    const fontSizeInput = document.getElementById('fontSize');
+    const fontSizeVal = document.getElementById('fontSizeVal');
+    const scrollSpeedInput = document.getElementById('scrollSpeed');
+    const bgOpacityInput = document.getElementById('bgOpacity');
+    const bgOpacityVal = document.getElementById('bgOpacityVal');
+
+    // 2. ESTADO GLOBAL DE LA APLICACIÓN
+    let stream = null;
+    let mediaRecorder = null;
+    let recordedChunks = [];
+    let isRecording = false;
+    let isPaused = false;
     
-    --neon-blue: #00d2ff;
-    --neon-purple: #7928ca;
-    --neon-green: #00ffa3;
-    
-    --btn-red: #1e0a10;
-    --btn-red-border: #ff1744;
-    --btn-yellow: #1e170a;
-    --btn-yellow-border: #ffea00;
-    --btn-blue: #0a131e;
-    --btn-blue-border: #00b0ff;
-    --btn-green: #0a1e14;
-    --btn-green-border: #00e676;
-    --btn-gray: #111827;
-    --btn-gray-border: #374151;
-}
+    let videoDevices = []; 
+    let currentCameraIndex = 0;
 
-* {
-    box-sizing: border-box;
-    margin: 0; padding: 0;
-    font-family: system-ui, -apple-system, sans-serif;
-}
+    // Estado del Intervalo del Prompter
+    let scrollInterval = null;
+    let currentScrollY = 0;
 
-body {
-    background-color: var(--bg-app);
-    color: var(--text-primary);
-    padding: 20px;
-    min-height: 100vh;
-    display: flex;
-    flex-direction: column;
-    overflow-x: hidden;
-}
+    // 3. ACTUALIZACIÓN DINÁMICA DE TEXTO Y CONTROLES
+    function updatePrompterText() {
+        if (prompterScroll && scriptInput) {
+            prompterScroll.innerText = scriptInput.value;
+        }
+    }
 
-/* TOP HEADER */
-.main-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 20px;
-    flex-wrap: wrap;
-    gap: 10px;
-}
-.header-left { display: flex; align-items: center; gap: 12px; }
-.app-logo {
-    background: linear-gradient(135deg, #00f2fe, #7928ca);
-    width: 35px; height: 35px; border-radius: 8px;
-    display: flex; align-items: center; justify-content: center;
-    font-weight: 900; font-size: 1.3rem;
-}
-.main-header h1 { font-size: 1.2rem; font-weight: 600; }
-.version-tag { background: #1e293b; padding: 2px 6px; border-radius: 4px; font-size: 0.7rem; color: #38bdf8; }
+    if (scriptInput) {
+        scriptInput.addEventListener('input', updatePrompterText);
+        updatePrompterText(); // Carga de texto base
+    }
 
-.header-center { display: flex; gap: 15px; }
-.status-pill { background: #0f172a; border: 1px solid var(--border-color); padding: 6px 14px; border-radius: 20px; font-size: 0.75rem; display: flex; align-items: center; gap: 8px; }
-.dot { width: 8px; height: 8px; border-radius: 50%; }
-.dot.green { background: #00e676; box-shadow: 0 0 8px #00e676; }
-.header-right { display: flex; gap: 8px; }
-.icon-btn { background: var(--bg-card); border: 1px solid var(--border-color); color: white; padding: 6px 12px; border-radius: 6px; cursor: pointer; font-size: 0.8rem; }
+    if (fontSizeInput) {
+        fontSizeInput.addEventListener('input', () => {
+            const size = fontSizeInput.value + 'rem';
+            if (prompterScroll) prompterScroll.style.fontSize = size;
+            if (fontSizeVal) fontSizeVal.innerText = size;
+        });
+    }
 
-/* LAYOUT PRINCIPAL */
-.app-container {
-    display: grid;
-    grid-template-columns: 1fr 480px;
-    gap: 20px;
-    flex: 1;
-}
+    if (bgOpacityInput) {
+        bgOpacityInput.addEventListener('input', () => {
+            const opacityPct = bgOpacityInput.value;
+            if (bgOpacityVal) bgOpacityVal.innerText = opacityPct + '%';
+            if (prompterOverlay) {
+                prompterOverlay.style.backgroundColor = `rgba(3, 7, 18, ${opacityPct / 100})`;
+            }
+        });
+    }
 
-.left-column { display: flex; flex-direction: column; gap: 20px; }
-.monitor-and-actions { display: flex; flex-direction: row; gap: 20px; align-items: start; justify-content: center; }
+    // 4. CONTROL DE ANIMACIÓN (DESPLAZAMIENTO AUTOMÁTICO)
+    function startPrompterAnimation() {
+        if (scrollInterval) clearInterval(scrollInterval);
+        
+        const speedFactor = scrollSpeedInput ? parseInt(scrollSpeedInput.value) : 100;
+        const intervalDelay = 40; 
+        const step = (speedFactor / 100) * 1.2; 
 
-/* VISOR DE VIDEO */
-.video-card-glow {
-    background: linear-gradient(135deg, #00d2ff, #7928ca, #ff007f);
-    padding: 3px;
-    border-radius: 24px;
-    width: 100%;
-    max-width: 380px;
-    box-shadow: 0 0 30px rgba(0, 210, 255, 0.15);
-}
-.video-card-inner {
-    background: #111;
-    border-radius: 21px;
-    overflow: hidden;
-    position: relative;
-    width: 100%;
-    aspect-ratio: 9 / 16;
-}
-#video { 
-    width: 100%; 
-    height: 100%; 
-    object-fit: cover; 
-    background-color: #000;
-}
+        scrollInterval = setInterval(() => {
+            if (!isPaused && isRecording) {
+                currentScrollY -= step;
+                if (prompterScroll) {
+                    prompterScroll.style.transform = `translateY(${currentScrollY}px)`;
+                }
+            }
+        }, intervalDelay);
+    }
 
-/* CAPA FLOTANTE DEL TELEPROMPTER */
-.prompter-overlay {
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    z-index: 5;
-    background-color: rgba(3, 7, 18, 0.5);
-    display: flex;
-    flex-direction: column;
-    justify-content: flex-start;
-    overflow: hidden;
-    pointer-events: none;
-    transition: background-color 0.1s ease;
-}
-.prompter-scroll {
-    padding: 50% 20px 60% 20px;
-    font-size: 1.5rem;
-    font-weight: 700;
-    color: #ffffff;
-    text-shadow: 2px 2px 5px rgba(0, 0, 0, 1);
-    text-align: center;
-    line-height: 1.6;
-    transform: translateY(0px);
-}
+    function stopPrompterAnimation(resetPos = false) {
+        if (scrollInterval) clearInterval(scrollInterval);
+        if (resetPos) {
+            currentScrollY = 0;
+            if (prompterScroll) prompterScroll.style.transform = `translateY(0px)`;
+        }
+    }
 
-/* LÍNEAS GUÍA ROJAS */
-.guide-line { position: absolute; left: 0; width: 100%; height: 2px; background: #ff1744; z-index: 10; opacity: 0.8; }
-.line-top { top: 35%; }
-.line-bottom { top: 43%; }
+    // 5. ESCANEO DE DISPOSITIVOS DE HARDWARE
+    async function initHardware() {
+        try {
+            if (!navigator.mediaDevices || !navigator.mediaDevices.enumerateDevices) return;
+            const devices = await navigator.mediaDevices.enumerateDevices();
+            videoDevices = [];
+            if (videoSource) videoSource.innerHTML = '';
 
-/* CAPAS INTERNAS DEL VISOR */
-.top-badges { position: absolute; top: 15px; left: 15px; right: 15px; display: flex; justify-content: space-between; z-index: 10; }
-.v-badge { background: rgba(0,0,0,0.6); backdrop-filter: blur(4px); padding: 4px 10px; border-radius: 6px; font-size: 0.7rem; font-weight: 600; }
-.v-badge.battery { color: #00e676; }
+            let camCount = 0;
+            devices.forEach(device => {
+                if (device.kind === 'videoinput') {
+                    videoDevices.push(device);
+                    camCount++;
+                    if (videoSource) {
+                        const option = document.createElement('option');
+                        option.value = device.deviceId;
+                        option.text = device.label || `Cámara ${camCount}`;
+                        videoSource.appendChild(option);
+                    }
+                }
+            });
+        } catch (error) {
+            console.error("Error mapeando el hardware:", error);
+        }
+    }
 
-.bottom-badges { position: absolute; bottom: 15px; left: 0; right: 0; display: flex; justify-content: space-around; align-items: center; z-index: 10; }
-.grid-btn, .flip-btn { background: rgba(0,0,0,0.6); border: none; color: white; width: 35px; height: 35px; border-radius: 50%; cursor: pointer; }
-.cam-trigger-btn { background: #00e676; border: none; width: 50px; height: 50px; border-radius: 50%; font-size: 1.2rem; cursor: pointer; display: flex; align-items: center; justify-content: center; box-shadow: 0 0 15px #00e676; }
+    // 6. ENTRADA Y MANEJO DE CÁMARA VELOZ
+    async function startCameraId(deviceId) {
+        if (stream) stream.getTracks().forEach(track => track.stop());
+        const constraints = {
+            video: {
+                deviceId: deviceId ? { exact: deviceId } : undefined,
+                width: { ideal: 1920 },
+                height: { ideal: 1080 }
+            },
+            audio: true
+        };
+        try {
+            stream = await navigator.mediaDevices.getUserMedia(constraints);
+            if (videoElement) {
+                videoElement.srcObject = stream;
+                videoElement.setAttribute('playsinline', true);
+                await videoElement.play();
+            }
+        } catch (err) {
+            fallbackCamera();
+        }
+    }
 
-/* BOTONERA LATERAL RECTANGULAR */
-.vertical-control-panel { display: flex; flex-direction: column; gap: 12px; width: 140px; }
-.action-btn {
-    display: flex; flex-direction: row; align-items: center; justify-content: flex-start; gap: 10px;
-    padding: 14px 12px; border-radius: 12px; font-size: 0.75rem; font-weight: 700; cursor: pointer;
-    color: var(--text-primary); border: 2px solid transparent; background: var(--bg-card); transition: all 0.2s;
-    width: 100%;
-}
-.action-btn.red-btn { background: var(--btn-red); border-color: var(--btn-red-border); box-shadow: 0 0 10px rgba(255,23,68,0.2); }
-.action-btn.yellow-btn { background: var(--btn-yellow); border-color: var(--btn-yellow-border); }
-.action-btn.blue-btn { background: var(--btn-blue); border-color: var(--btn-blue-border); }
-.action-btn.green-btn { background: var(--btn-green); border-color: var(--btn-green-border); }
-.action-btn.gray-btn { background: var(--btn-gray); border-color: var(--btn-gray-border); }
+    async function fallbackCamera() {
+        try {
+            stream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
+            if (videoElement) { videoElement.srcObject = stream; await videoElement.play(); }
+        } catch (e) { console.error("Fallo total de cámara:", e); }
+    }
 
-.btn-dot { width: 8px; height: 8px; background: #ff1744; border-radius: 50%; display: inline-block; }
+    function switchCamera() {
+        if (videoDevices.length <= 1) return;
+        currentCameraIndex = (currentCameraIndex + 1) % videoDevices.length;
+        if (videoSource) videoSource.value = videoDevices[currentCameraIndex].deviceId;
+        startCameraId(videoDevices[currentCameraIndex].deviceId);
+    }
 
-/* COLUMNA DERECHA O INFERIOR */
-.right-column { display: flex; flex-direction: column; gap: 15px; }
-.config-card { background: var(--bg-card); border: 1px solid var(--border-color); border-radius: 16px; padding: 18px; }
-.card-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; }
-.card-header h3 { font-size: 0.85rem; font-weight: 600; display: flex; align-items: center; gap: 10px; }
+    // 7. MOTOR DE GRABACIÓN HD (10 Mbps)
+    function startRecording() {
+        if (!stream) return;
+        recordedChunks = [];
+        let options = { mimeType: 'video/webm', videoBitsPerSecond: 10000000 };
+        
+        if (MediaRecorder.isTypeSupported('video/webm;codecs=vp8')) {
+            options = { mimeType: 'video/webm;codecs=vp8', videoBitsPerSecond: 10000000 };
+        } else if (MediaRecorder.isTypeSupported('video/mp4')) {
+            options = { mimeType: 'video/mp4', videoBitsPerSecond: 10000000 };
+        }
 
-.num-tag { width: 22px; height: 22px; border-radius: 6px; display: inline-flex; align-items: center; justify-content: center; font-size: 0.75rem; font-weight: 700; }
-.blue-tag { background: #2563eb; color: white; }
-.purple-tag { background: #4f46e5; color: white; }
+        try {
+            mediaRecorder = new MediaRecorder(stream, options);
+            mediaRecorder.ondataavailable = (e) => { if (e.data.size > 0) recordedChunks.push(e.data); };
+            mediaRecorder.onstop = () => {
+                const blob = new Blob(recordedChunks, { type: mediaRecorder.mimeType || 'video/webm' });
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                const ext = (mediaRecorder.mimeType && mediaRecorder.mimeType.includes('mp4')) ? 'mp4' : 'webm';
+                a.download = `teleprompter-hd-${Date.now()}.${ext}`;
+                a.click();
+            };
 
-.grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
-.input-group { display: flex; flex-direction: column; gap: 6px; }
-.input-group label { font-size: 0.7rem; color: var(--text-muted); }
-.input-group select { background: var(--bg-input); border: 1px solid var(--border-color); color: white; padding: 10px 12px; border-radius: 8px; font-size: 0.8rem; outline: none; width: 100%; }
+            mediaRecorder.start(1000);
+            isRecording = true;
+            isPaused = false;
+            
+            if (btnStart) btnStart.innerHTML = '<span class="btn-dot"></span> GRABANDO';
+            if (btnStop) btnStop.disabled = false;
+            
+            startPrompterAnimation();
+        } catch (e) { console.error("Error en grabación:", e); }
+    }
 
-.slider-group { margin-bottom: 12px; }
-.slider-meta { display: flex; justify-content: space-between; font-size: 0.75rem; margin-bottom: 6px; }
-input[type="range"] { -webkit-appearance: none; width: 100%; height: 6px; background: var(--bg-input); border-radius: 4px; }
-input[type="range"]::-webkit-slider-thumb { -webkit-appearance: none; width: 14px; height: 14px; border-radius: 50%; background: #2563eb; cursor: pointer; }
+    function stopRecording() {
+        if (mediaRecorder && isRecording) {
+            mediaRecorder.stop();
+            isRecording = false;
+            stopPrompterAnimation(false);
+            if (btnStart) btnStart.innerHTML = '<span class="btn-dot"></span> GRABAR';
+            if (btnStop) btnStop.disabled = true;
+        }
+    }
 
-textarea { width: 100%; height: 110px; background: var(--bg-input); border: 1px solid var(--border-color); border-radius: 10px; color: white; padding: 12px; font-size: 0.85rem; resize: none; outline: none; }
+    // 8. ASIGNACIÓN TOTAL DE LISTENERS
+    const handleCameraTrigger = () => { if (!stream) startCameraId(null); else switchCamera(); };
+    if (btnToggleCamera) btnToggleCamera.addEventListener('click', handleCameraTrigger);
+    if (btnCamTrigger) btnCamTrigger.addEventListener('click', handleCameraTrigger);
 
-/* TELEMETRÍA FOOTER */
-.telemetry-footer { display: flex; gap: 15px; background: var(--bg-card); border: 1px solid var(--border-color); border-radius: 14px; padding: 10px 20px; overflow-x: auto; }
-.tel-item { display: flex; flex-direction: column; gap: 2px; min-width: 80px; }
-.tel-label { font-size: 0.65rem; color: var(--text-muted); text-transform: uppercase; }
-.tel-val { font-size: 0.85rem; font-weight: 700; }
+    if (btnStart) {
+        btnStart.addEventListener('click', () => { if (!isRecording) startRecording(); });
+    }
+    if (btnStop) btnStop.addEventListener('click', stopRecording);
 
-@media (max-width: 900px) {
-    body { padding: 10px; }
-    .main-header { justify-content: center; text-align: center; gap: 12px; }
-    .header-right { width: 100%; justify-content: center; }
-    .app-container { grid-template-columns: 1fr; gap: 15px; }
-    .monitor-and-actions { flex-direction: column; align-items: center; width: 100%; }
-    .video-card-glow { max-width: 100%; }
-    .vertical-control-panel { flex-direction: row; width: 100%; overflow-x: auto; padding-bottom: 5px; gap: 8px; }
-    .action-btn { width: auto; flex: 1; min-width: 110px; justify-content: center; padding: 10px; font-size: 0.7rem; }
-    .grid-2 { grid-template-columns: 1fr; }
-}
+    if (btnPause) {
+        btnPause.addEventListener('click', () => {
+            if (mediaRecorder && isRecording) {
+                if (mediaRecorder.state === 'recording') {
+                    mediaRecorder.pause();
+                    isPaused = true;
+                    btnPause.innerHTML = '▶ REANUDAR';
+                } else if (mediaRecorder.state === 'paused') {
+                    mediaRecorder.resume();
+                    isPaused = false;
+                    btnPause.innerHTML = '⏸ PAUSA';
+                }
+            }
+        });
+    }
+
+    if (btnReset) {
+        btnReset.addEventListener('click', () => {
+            stopRecording();
+            stopPrompterAnimation(true);
+            if (videoDevices.length > 0) startCameraId(videoDevices[currentCameraIndex].deviceId);
+        });
+    }
+
+    if (videoSource) videoSource.addEventListener('change', () => startCameraId(videoSource.value));
+
+    // 9. ARRANQUE EN SEGUNDO PLANO
+    initHardware().then(() => {
+        setTimeout(() => { if (videoDevices.length > 0) startCameraId(videoDevices[0].deviceId); }, 400);
+    });
+});
