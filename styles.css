@@ -64,7 +64,7 @@ body {
 .header-right { display: flex; gap: 8px; }
 .icon-btn { background: var(--bg-card); border: 1px solid var(--border-color); color: white; padding: 6px 12px; border-radius: 6px; cursor: pointer; font-size: 0.8rem; }
 
-/* LAYOUT PRINCIPAL (ESCRITORIO POR DEFECTO) */
+/* LAYOUT PRINCIPAL */
 .app-container {
     display: grid;
     grid-template-columns: 1fr 480px;
@@ -97,6 +97,33 @@ body {
     height: 100%; 
     object-fit: cover; 
     background-color: #000;
+}
+
+/* CAPA FLOTANTE DEL TELEPROMPTER */
+.prompter-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 5;
+    background-color: rgba(3, 7, 18, 0.5);
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    overflow: hidden;
+    pointer-events: none;
+    transition: background-color 0.1s ease;
+}
+.prompter-scroll {
+    padding: 50% 20px 60% 20px;
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: #ffffff;
+    text-shadow: 2px 2px 5px rgba(0, 0, 0, 1);
+    text-align: center;
+    line-height: 1.6;
+    transform: translateY(0px);
 }
 
 /* LÍNEAS GUÍA ROJAS */
@@ -138,14 +165,12 @@ body {
 .num-tag { width: 22px; height: 22px; border-radius: 6px; display: inline-flex; align-items: center; justify-content: center; font-size: 0.75rem; font-weight: 700; }
 .blue-tag { background: #2563eb; color: white; }
 .purple-tag { background: #4f46e5; color: white; }
-.purple-inner-tag { background: #6366f1; color: white; }
 
 .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
 .input-group { display: flex; flex-direction: column; gap: 6px; }
 .input-group label { font-size: 0.7rem; color: var(--text-muted); }
 .input-group select { background: var(--bg-input); border: 1px solid var(--border-color); color: white; padding: 10px 12px; border-radius: 8px; font-size: 0.8rem; outline: none; width: 100%; }
 
-/* CONTROLES ADICIONALES */
 .slider-group { margin-bottom: 12px; }
 .slider-meta { display: flex; justify-content: space-between; font-size: 0.75rem; margin-bottom: 6px; }
 input[type="range"] { -webkit-appearance: none; width: 100%; height: 6px; background: var(--bg-input); border-radius: 4px; }
@@ -159,79 +184,14 @@ textarea { width: 100%; height: 110px; background: var(--bg-input); border: 1px 
 .tel-label { font-size: 0.65rem; color: var(--text-muted); text-transform: uppercase; }
 .tel-val { font-size: 0.85rem; font-weight: 700; }
 
-/* ==========================================================================
-   MEDIA QUERY: OPTIMIZACIÓN EN DISPOSITIVOS MÓVILES (PANTALLAS CHICAS)
-   ========================================================================== */
 @media (max-width: 900px) {
     body { padding: 10px; }
-    
     .main-header { justify-content: center; text-align: center; gap: 12px; }
     .header-right { width: 100%; justify-content: center; }
-
-    /* Cambia la cuadrícula a una sola columna vertical */
-    .app-container {
-        grid-template-columns: 1fr;
-        gap: 15px;
-    }
-    
-    /* El visor y la botonera pasan a ordenarse uno abajo del otro o en bloque */
-    .monitor-and-actions {
-        flex-direction: column;
-        align-items: center;
-        width: 100%;
-    }
-    
-    .video-card-glow {
-        max-width: 100%; /* Toma el ancho disponible del celular manteniendo 9:16 */
-    }
-
-    /* La botonera lateral ahora se vuelve horizontal abajo del visor para ahorrar espacio */
-    .vertical-control-panel {
-        flex-direction: row;
-        width: 100%;
-        overflow-x: auto;
-        padding-bottom: 5px;
-        gap: 8px;
-    }
-    
-    .action-btn {
-        width: auto;
-        flex: 1;
-        min-width: 110px;
-        justify-content: center;
-        padding: 10px;
-        font-size: 0.7rem;
-    }
-
-    .grid-2 {
-        grid-template-columns: 1fr; /* Los selectores bajan uno a uno en celular */
-    }
-    /* ==========================================================================
-   CAPA FLOTANTE DEL TELEPROMPTER (SUPERPUESTA SOBRE VIDEO)
-   ========================================================================== */
-.prompter-overlay {
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    z-index: 5; /* Por encima del video, por debajo de las líneas guía y botones */
-    background-color: rgba(3, 7, 18, 0.5); /* Color base variable --bg-app */
-    display: flex;
-    flex-direction: column;
-    justify-content: flex-start;
-    overflow: hidden;
-    pointer-events: none; /* Permite que los clics pasen al visor si es necesario */
-    transition: background-color 0.1s ease;
-}
-
-.prompter-scroll {
-    padding: 40% 20px 50% 20px; /* Margen superior e inferior para lectura cómoda */
-    font-size: 1.5rem;
-    font-weight: 700;
-    color: #ffffff;
-    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.9); /* Sombra para alta legibilidad */
-    text-align: center;
-    line-height: 1.6;
-    transform: translateY(0px); /* Controlado dinámicamente por JS */
+    .app-container { grid-template-columns: 1fr; gap: 15px; }
+    .monitor-and-actions { flex-direction: column; align-items: center; width: 100%; }
+    .video-card-glow { max-width: 100%; }
+    .vertical-control-panel { flex-direction: row; width: 100%; overflow-x: auto; padding-bottom: 5px; gap: 8px; }
+    .action-btn { width: auto; flex: 1; min-width: 110px; justify-content: center; padding: 10px; font-size: 0.7rem; }
+    .grid-2 { grid-template-columns: 1fr; }
 }
