@@ -102,7 +102,7 @@ function stopCamera() {
         audioContext.close();
         audioContext = null;
     }
-    btnToggleCamera.textContent = "📷 CÁMARA";
+    btnToggleCamera.textContent = "📷 CAMBIAR CÁMARA";
     btnStart.disabled = true;
 }
 
