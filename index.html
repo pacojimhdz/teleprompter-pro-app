@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Teleprompter Pro v9</title>
-    <link rel="stylesheet" href="styles.css?v=9.1">
+    <link rel="stylesheet" href="styles.css?v=9.2">
 </head>
 <body class="theme-dark-pro">
 
@@ -41,6 +41,7 @@
                             <span class="v-badge battery">52%</span>
                         </div>
                         
+                        <!-- Etiqueta de video nativa para la webcam -->
                         <video id="video" autoplay playsinline muted></video>
                         
                         <!-- Líneas guía rojas -->
@@ -49,54 +50,39 @@
                         
                         <div class="bottom-badges">
                             <button class="grid-btn">⛶</button>
-                            <button class="cam-trigger-btn">📷</button>
+                            <button class="cam-trigger-btn" id="btnCamTrigger">📷</button>
                             <button class="flip-btn">🔄</button>
                         </div>
                     </div>
                 </div>
 
-                <!-- Botones de Control Verticales Intermedios -->
+                <!-- Botones de Control Verticales -->
                 <div class="vertical-control-panel">
-                    <button id="btnStart" class="action-btn red-btn active">
+                    <button id="btnStart" class="action-btn red-btn">
                         <span class="btn-dot"></span> GRABAR
                     </button>
                     <button id="btnPause" class="action-btn yellow-btn">
-                        <span class="btn-icon">⏸</span> PAUSA
+                        ⏸ PAUSA
                     </button>
                     <button id="btnReset" class="action-btn blue-btn">
-                        <span class="btn-icon">🔄</span> REINICIAR
+                        🔄 REINICIAR
                     </button>
                     <button id="btnToggleCamera" class="action-btn green-btn">
-                        <span class="btn-icon">📷</span> CÁMARA
+                        📷 CÁMARA
                     </button>
                     <button id="btnStop" class="action-btn gray-btn" disabled>
-                        <span class="btn-icon">💾</span> GUARDAR
+                        💾 GUARDAR
                     </button>
                 </div>
             </div>
 
             <!-- Barra de Telemetría Inferior -->
             <footer class="telemetry-footer">
-                <div class="tel-item">
-                    <span class="tel-label">Resolución</span>
-                    <span class="tel-val" id="footer-res">1080p</span>
-                </div>
-                <div class="tel-item">
-                    <span class="tel-label">FPS</span>
-                    <span class="tel-val" id="footer-fps">30</span>
-                </div>
-                <div class="tel-item">
-                    <span class="tel-label">Formato</span>
-                    <span class="tel-val" id="footer-format">9:16</span>
-                </div>
-                <div class="tel-item">
-                    <span class="tel-label">Velocidad</span>
-                    <span class="tel-val" id="footer-speed">100 PPM</span>
-                </div>
-                <div class="tel-item">
-                    <span class="tel-label">Duración</span>
-                    <span class="tel-val" id="footer-duration">2:24 min</span>
-                </div>
+                <div class="tel-item"><span class="tel-label">Resolución</span><span class="tel-val">1080p</span></div>
+                <div class="tel-item"><span class="tel-label">FPS</span><span class="tel-val">30</span></div>
+                <div class="tel-item"><span class="tel-label">Formato</span><span class="tel-val">9:16</span></div>
+                <div class="tel-item"><span class="tel-label">Velocidad</span><span class="tel-val">100 PPM</span></div>
+                <div class="tel-item"><span class="tel-label">Duración</span><span class="tel-val">2:24 min</span></div>
             </footer>
         </div>
 
@@ -112,19 +98,11 @@
                 <div class="card-body grid-2">
                     <div class="input-group">
                         <label>Seleccionar Cámara</label>
-                        <select id="videoSource"><option>camera 1, facing front</option></select>
+                        <select id="videoSource"><option>Cargando cámaras...</option></select>
                     </div>
                     <div class="input-group">
                         <label>Seleccionar Micrófono</label>
                         <select id="audioSource"><option>Predeterminado</option></select>
-                    </div>
-                    <div class="input-group">
-                        <label>Resolución</label>
-                        <select id="resolutionSelect"><option>1080p (Full HD)</option></select>
-                    </div>
-                    <div class="input-group">
-                        <label>FPS</label>
-                        <select id="fpsSelect"><option>30 FPS</option></select>
                     </div>
                 </div>
             </div>
@@ -133,28 +111,15 @@
             <div class="config-card">
                 <div class="card-header">
                     <h3><span class="num-tag purple-tag">2</span> Personalización del Prompter</h3>
-                    <span class="arrow-icon">▲</span>
                 </div>
                 <div class="card-body">
                     <div class="slider-group">
                         <div class="slider-meta"><label>Tamaño de Letra</label><span>1rem</span></div>
-                        <input type="range" id="fontSize" min="1" max="4" step="0.1" value="1">
+                        <input type="range" id="fontSize" min="1" max="3" step="0.1" value="1">
                     </div>
                     <div class="slider-group">
-                        <div class="slider-meta"><label>Velocidad de Lectura (PPM)</label><span>100 PPM</span></div>
-                        <input type="range" id="scrollSpeed" min="50" max="300" step="5" value="100">
-                    </div>
-                    <div class="duration-indicator">Duración estimada: 2:24 min</div>
-                    
-                    <div class="grid-2" style="margin-top: 15px;">
-                        <div class="input-group">
-                            <label>Formato de Video</label>
-                            <select id="aspectRatioSelect"><option>Vertical (9:16)</option></select>
-                        </div>
-                        <div class="input-group">
-                            <label>Color de Texto</label>
-                            <select id="textColorSelect"><option>Verde Neón</option></select>
-                        </div>
+                        <div class="slider-meta"><label>Velocidad de Lectura</label><span>100 PPM</span></div>
+                        <input type="range" id="scrollSpeed" min="50" max="200" step="5" value="100">
                     </div>
                 </div>
             </div>
@@ -163,42 +128,15 @@
             <div class="config-card">
                 <div class="card-header">
                     <h3><span class="num-tag purple-inner-tag">3</span> Editor de Guiones</h3>
-                    <div class="header-right-meta">
-                        <span>Auto-guardado</span>
-                        <span class="status-text green-text">● Activado</span>
-                    </div>
                 </div>
                 <div class="card-body">
-                    <div class="editor-actions">
-                        <button class="editor-btn blue-btn-light">+ Nuevo Guion</button>
-                        <button class="editor-btn gray-outline">Cargar Guion</button>
-                        <button class="editor-btn red-outline">Limpiar</button>
-                    </div>
-                    <textarea id="scriptInput" placeholder="Escribe tu guion aquí...">Si tu primera salida fue un fracaso, no fue por tu detector. El verdadero error está en el lugar donde buscas, y hoy te voy a explicar por qué.</textarea>
-                    <div class="char-counter">186 / 5000 caracteres</div>
+                    <textarea id="scriptInput">Si tu primera salida fue un fracaso, no fue por tu detector...</textarea>
                 </div>
             </div>
-
-            <!-- SECCIÓN 4 -->
-            <div class="config-card">
-                <div class="card-header">
-                    <h3><span class="num-tag blue-tag">4</span> Interfaz</h3>
-                    <span class="arrow-icon">▲</span>
-                </div>
-                <div class="card-body">
-                    <label style="margin-bottom: 10px; display:block;">Tema Visual de la Aplicación</label>
-                    <div class="theme-selector-grid">
-                        <button class="theme-btn active-theme">Modo Oscuro Pro</button>
-                        <button class="theme-btn">Oscuro Clásico</button>
-                        <button class="theme-btn">Claro</button>
-                        <button class="theme-btn">Sepia</button>
-                        <button class="theme-btn">Azul Profundo</button>
-                    </div>
-                </div>
-            </div>
-
         </div>
     </div>
 
+    <!-- Carga del script con enlace absoluto -->
+    <script src="app.js" defer></script>
 </body>
 </html>
