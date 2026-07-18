@@ -3,150 +3,83 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Teleprompter Pro v9</title>
-    <link rel="stylesheet" href="styles.css?v=9.3">
+    <title>Teleprompter Pro v10</title>
+    <link rel="stylesheet" href="styles.css">
 </head>
-<body class="theme-dark-pro">
-
-    <!-- BARRA SUPERIOR (HEADER) -->
-    <header class="main-header">
-        <div class="header-left">
-            <div class="app-logo">T</div>
-            <h1>Teleprompter Pro <span class="version-tag">v9</span></h1>
+<body>
+    <header class="telemetry-bar">
+        <div class="status-group">
+            <!-- Canal de alertas dedicado para evitar solapamientos -->
+            <div id="alertPill" class="status-pill alert-pill" style="display: none;"></div>
+            
+            <div id="vuPill" class="status-pill">
+                <span id="vuDot" class="dot gray"></span> VU: 0%
+            </div>
+            <div id="storagePill" class="status-pill">
+                <span class="dot gray"></span> Almacenamiento: Calculando...
+            </div>
         </div>
-        <div class="header-center">
-            <div class="status-pill"><span class="dot green"></span> VU: 0%</div>
-            <div class="status-pill"><span class="dot green"></span> Almacenamiento: OK</div>
-        </div>
-        <div class="header-right">
-            <button class="icon-btn"> Help </button>
-            <button class="icon-btn"> Settings </button>
-            <button class="icon-btn"> Theme </button>
+        <div class="badge-group">
+            <span id="resBadge" class="badge">--</span>
+            <span id="fpsBadge" class="badge">--</span>
+            <span id="battBadge" class="badge">--</span>
         </div>
     </header>
 
-    <!-- CONTENEDOR PRINCIPAL -->
-    <div class="app-container">
-        
-        <!-- COLUMNA IZQUIERDA: MONITOR Y BOTONES PRINCIPALES -->
-        <div class="left-column">
+    <main class="studio-container">
+        <section class="video-preview">
+            <video id="video" autoplay playsinline muted></video>
+            <div id="prompterOverlay" class="prompter-overlay">
+                <div id="prompterScroll" class="prompter-scroll"></div>
+            </div>
+        </section>
+
+        <section class="control-panel">
+            <div class="control-group">
+                <label for="videoSource">Cámara:</label>
+                <select id="videoSource"></select>
+            </div>
+            <div class="control-group">
+                <label for="audioSource">Micrófono:</label>
+                <select id="audioSource"></select>
+            </div>
             
-            <div class="monitor-and-actions">
-                <!-- El Visor con Borde de Neón Gradiente -->
-                <div class="video-card-glow">
-                    <div class="video-card-inner">
-                        <div class="top-badges">
-                            <span class="v-badge">1080p (Full HD)</span>
-                            <span class="v-badge">30 FPS</span>
-                            <span class="v-badge battery">52%</span>
-                        </div>
-                        
-                        <!-- Etiqueta de video nativa para la webcam -->
-                        <video id="video" autoplay playsinline muted></video>
-                        
-                        <!-- CAPA SUPERPUESTA DEL TELEPROMPTER -->
-                        <div id="prompterOverlay" class="prompter-overlay">
-                            <div id="prompterScroll" class="prompter-scroll">
-                                INGRESA AQUI EL TEXTO DE TU GUION
-                            </div>
-                        </div>
-                        
-                        <!-- Líneas guía rojas -->
-                        <div class="guide-line line-top"></div>
-                        <div class="guide-line line-bottom"></div>
-                        
-                        <div class="bottom-badges">
-                            <button class="grid-btn">⛶</button>
-                            <button class="cam-trigger-btn" id="btnCamTrigger">📷</button>
-                            <button class="flip-btn">🔄</button>
-                        </div>
-                    </div>
-                </div>
+            <div class="actions-group">
+                <button id="btnStart" class="btn btn-primary"><span class="btn-dot"></span> GRABAR</button>
+                <button id="btnPause" class="btn btn-secondary" disabled>⏸ PAUSA</button>
+                <button id="btnStop" class="btn btn-danger" disabled>⏹ PARAR</button>
+                <button id="btnReset" class="btn btn-warning">🔄 RESET</button>
+            </div>
 
-                <!-- Botones de Control Verticales -->
-                <div class="vertical-control-panel">
-                    <button id="btnStart" class="action-btn red-btn">
-                        <span class="btn-dot"></span> GRABAR
-                    </button>
-                    <button id="btnPause" class="action-btn yellow-btn">
-                        ⏸ PAUSA
-                    </button>
-                    <button id="btnReset" class="action-btn blue-btn">
-                        🔄 REINICIAR
-                    </button>
-                    <button id="btnToggleCamera" class="action-btn green-btn">
-                        📷 CAMBIAR CÁMARA
-                    </button>
-                    <button id="btnStop" class="action-btn gray-btn" disabled>
-                        💾 GUARDAR
-                    </button>
+            <div class="config-group">
+                <label>Texto del Guion:</label>
+                <textarea id="scriptInput" placeholder="Escribe tu guion aquí..."></textarea>
+            </div>
+
+            <div class="sliders-group">
+                <div class="slider-item">
+                    <label for="fontSize">Tamaño de letra: <span id="fontSizeVal">1.5rem</span></label>
+                    <input type="range" id="fontSize" min="1" max="4" step="0.1" value="1.5">
+                </div>
+                <div class="slider-item">
+                    <label for="scrollSpeed">Velocidad: <span id="telSpeed">100 PPM</span></label>
+                    <input type="range" id="scrollSpeed" min="50" max="300" step="10" value="100">
+                </div>
+                <div class="slider-item">
+                    <label for="bgOpacity">Opacidad Fondo: <span id="bgOpacityVal">50%</span></label>
+                    <input type="range" id="bgOpacity" min="0" max="100" value="50">
                 </div>
             </div>
 
-            <!-- Barra de Telemetría Inferior -->
-            <footer class="telemetry-footer">
-                <div class="tel-item"><span class="tel-label">Resolución</span><span class="tel-val">1080p</span></div>
-                <div class="tel-item"><span class="tel-label">FPS</span><span class="tel-val">30</span></div>
-                <div class="tel-item"><span class="tel-label">Formato</span><span class="tel-val">9:16</span></div>
-                <div class="tel-item"><span class="tel-label">Velocidad</span><span class="tel-val">100 PPM</span></div>
-                <div class="tel-item"><span class="tel-label">Duración</span><span class="tel-val">2:24 min</span></div>
-            </footer>
-        </div>
+            <table class="data-table">
+                <tr><td>Resolución activa:</td><td id="telResolution">--</td></tr>
+                <tr><td>FPS reales:</td><td id="telFps">--</td></tr>
+                <tr><td>Formato:</td><td id="telFormat">WebM (Opus/VP9)</td></tr>
+                <tr><td>Duración clip:</td><td id="telDuration">00:00 min</td></tr>
+            </table>
+        </section>
+    </main>
 
-        <!-- COLUMNA DERECHA: CONFIGURACIONES -->
-        <div class="right-column">
-            
-            <!-- SECCIÓN 1 -->
-            <div class="config-card">
-                <div class="card-header">
-                    <h3><span class="num-tag blue-tag">1</span> Hardware y Captura</h3>
-                    <span class="arrow-icon">▲</span>
-                </div>
-                <div class="card-body grid-2">
-                    <div class="input-group">
-                        <label>Seleccionar Cámara</label>
-                        <select id="videoSource"><option>Cargando cámaras...</option></select>
-                    </div>
-                    <div class="input-group">
-                        <label>Seleccionar Micrófono</label>
-                        <select id="audioSource"><option>Predeterminado</option></select>
-                    </div>
-                </div>
-            </div>
-
-            <!-- SECCIÓN 2 -->
-            <div class="config-card">
-                <div class="card-header">
-                    <h3><span class="num-tag purple-tag">2</span> Personalización del Prompter</h3>
-                </div>
-                <div class="card-body">
-                    <div class="slider-group">
-                        <div class="slider-meta"><label>Tamaño de Letra</label><span id="fontSizeVal">1.5rem</span></div>
-                        <input type="range" id="fontSize" min="1" max="3" step="0.1" value="1.5">
-                    </div>
-                    <div class="slider-group">
-                        <div class="slider-meta"><label>Velocidad de Lectura</label><span>100 PPM</span></div>
-                        <input type="range" id="scrollSpeed" min="50" max="200" step="5" value="100">
-                    </div>
-                    <div class="slider-group">
-                        <div class="slider-meta"><label>Fondo del Texto (Opacidad)</label><span id="bgOpacityVal">50%</span></div>
-                        <input type="range" id="bgOpacity" min="0" max="100" step="5" value="50">
-                    </div>
-                </div>
-            </div>
-
-            <!-- SECCIÓN 3 -->
-            <div class="config-card">
-                <div class="card-header">
-                    <h3><span class="num-tag purple-inner-tag">3</span> Editor de Guiones</h3>
-                </div>
-                <div class="card-body">
-                    <textarea id="scriptInput">INGRESA AQUI EL TEXTO DE TU GUION</textarea>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <script src="app.js" defer></script>
+    <script src="app.js"></script>
 </body>
 </html>
