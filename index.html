@@ -29,82 +29,54 @@
     <div class="app-container">
         
         <!-- COLUMNA IZQUIERDA: MONITOR Y BOTONES PRINCIPALES -->
-        <!-- Reemplaza el bloque de la línea 32 a la 52 (dentro de video-card-inner) con esto: -->
-<div class="video-card-glow">
-    <div class="video-card-inner">
-        <div class="top-badges">
-            <span class="v-badge">1080p (Full HD)</span>
-            <span class="v-badge">30 FPS</span>
-            <span class="v-badge battery">52%</span>
-        </div>
-        
-        <!-- Etiqueta de video nativa para la webcam -->
-        <video id="video" autoplay playsinline muted></video>
-        
-        <!-- CAPA SUPERPUESTA DEL TELEPROMPTER -->
-        <div id="prompterOverlay" class="prompter-overlay">
-            <div id="prompterScroll" class="prompter-scroll">
-                INGRESA AQUI EL TEXTO DE TU GUION
-            </div>
-        </div>
-        
-        <!-- Líneas guía rojas -->
-        <div class="guide-line line-top"></div>
-        <div class="guide-line line-bottom"></div>
-        
-        <div class="bottom-badges">
-            <button class="grid-btn">⛶</button>
-            <button class="cam-trigger-btn" id="btnCamTrigger">📷</button>
-            <button class="flip-btn">🔄</button>
-        </div>
-    </div>
-</div>
-
-<!-- Ahora, ve a la SECCIÓN 2 (Personalización del Prompter) y añade el slider de opacidad: -->
-<div class="config-card">
-    <div class="card-header">
-        <h3><span class="num-tag purple-tag">2</span> Personalización del Prompter</h3>
-    </div>
-    <div class="card-body">
-        <div class="slider-group">
-            <div class="slider-meta"><label>Tamaño de Letra</label><span id="fontSizeVal">1.5rem</span></div>
-            <input type="range" id="fontSize" min="1" max="3" step="0.1" value="1.5">
-        </div>
-        <div class="slider-group">
-            <div class="slider-meta"><label>Velocidad de Lectura</label><span>100 PPM</span></div>
-            <input type="range" id="scrollSpeed" min="50" max="200" step="5" value="100">
-        </div>
-        <!-- NUEVO CONTROL DE TRANSPARENCIA -->
-        <div class="slider-group">
-            <div class="slider-meta"><label>Fondo del Texto (Opacidad)</label><span id="bgOpacityVal">50%</span></div>
-            <input type="range" id="bgOpacity" min="0" max="100" step="5" value="50">
-        </div>
-    </div>
-</div>
-                            <button class="cam-trigger-btn" id="btnCamTrigger">📷</button>
-                            <button class="flip-btn">🔄</button>
+        <div class="left-column">
+            <div class="video-card-glow">
+                <div class="video-card-inner">
+                    <div class="top-badges">
+                        <span class="v-badge">1080p (Full HD)</span>
+                        <span class="v-badge">30 FPS</span>
+                        <span class="v-badge battery">52%</span>
+                    </div>
+                    
+                    <!-- Etiqueta de video nativa para la webcam -->
+                    <video id="video" autoplay playsinline muted></video>
+                    
+                    <!-- CAPA SUPERPUESTA DEL TELEPROMPTER -->
+                    <div id="prompterOverlay" class="prompter-overlay">
+                        <div id="prompterScroll" class="prompter-scroll">
+                            INGRESA AQUI EL TEXTO DE TU GUION
                         </div>
                     </div>
+                    
+                    <!-- Líneas guía rojas -->
+                    <div class="guide-line line-top"></div>
+                    <div class="guide-line line-bottom"></div>
+                    
+                    <div class="bottom-badges">
+                        <button class="grid-btn">⛶</button>
+                        <button class="cam-trigger-btn" id="btnCamTrigger">📷</button>
+                        <button class="flip-btn">🔄</button>
+                    </div>
                 </div>
+            </div>
 
-                <!-- Botones de Control Verticales -->
-                <div class="vertical-control-panel">
-                    <button id="btnStart" class="action-btn red-btn">
-                        <span class="btn-dot"></span> GRABAR
-                    </button>
-                    <button id="btnPause" class="action-btn yellow-btn">
-                        ⏸ PAUSA
-                    </button>
-                    <button id="btnReset" class="action-btn blue-btn">
-                        🔄 REINICIAR
-                    </button>
-                    <button id="btnToggleCamera" class="action-btn green-btn">
-                        📷 CÁMARA
-                    </button>
-                    <button id="btnStop" class="action-btn gray-btn" disabled>
-                        💾 GUARDAR
-                    </button>
-                </div>
+            <!-- Botones de Control Verticales -->
+            <div class="vertical-control-panel">
+                <button id="btnStart" class="action-btn red-btn">
+                    <span class="btn-dot"></span> GRABAR
+                </button>
+                <button id="btnPause" class="action-btn yellow-btn">
+                    Local ⏸ PAUSA
+                </button>
+                <button id="btnReset" class="action-btn blue-btn">
+                    🔄 REINICIAR
+                </button>
+                <button id="btnToggleCamera" class="action-btn green-btn">
+                    📷 CÁMARA
+                </button>
+                <button id="btnStop" class="action-btn gray-btn" disabled>
+                    💾 GUARDAR
+                </button>
             </div>
 
             <!-- Barra de Telemetría Inferior -->
@@ -120,7 +92,7 @@
         <!-- COLUMNA DERECHA: CONFIGURACIONES -->
         <div class="right-column">
             
-            <!-- SECCIÓN 1 -->
+            <!-- SECCIÓN 1: HARDWARE -->
             <div class="config-card">
                 <div class="card-header">
                     <h3><span class="num-tag blue-tag">1</span> Hardware y Captura</h3>
@@ -138,24 +110,29 @@
                 </div>
             </div>
 
-            <!-- SECCIÓN 2 -->
+            <!-- SECCIÓN 2: PERSONALIZACIÓN (CON NUEVO SLIDER) -->
             <div class="config-card">
                 <div class="card-header">
                     <h3><span class="num-tag purple-tag">2</span> Personalización del Prompter</h3>
                 </div>
                 <div class="card-body">
                     <div class="slider-group">
-                        <div class="slider-meta"><label>Tamaño de Letra</label><span>1rem</span></div>
-                        <input type="range" id="fontSize" min="1" max="3" step="0.1" value="1">
+                        <div class="slider-meta"><label>Tamaño de Letra</label><span id="fontSizeVal">1.5rem</span></div>
+                        <input type="range" id="fontSize" min="1" max="3" step="0.1" value="1.5">
                     </div>
                     <div class="slider-group">
                         <div class="slider-meta"><label>Velocidad de Lectura</label><span>100 PPM</span></div>
                         <input type="range" id="scrollSpeed" min="50" max="200" step="5" value="100">
                     </div>
+                    <!-- NUEVO CONTROL DE TRANSPARENCIA -->
+                    <div class="slider-group">
+                        <div class="slider-meta"><label>Fondo del Texto (Opacidad)</label><span id="bgOpacityVal">50%</span></div>
+                        <input type="range" id="bgOpacity" min="0" max="100" step="5" value="50">
+                    </div>
                 </div>
             </div>
 
-            <!-- SECCIÓN 3 -->
+            <!-- SECCIÓN 3: EDITOR -->
             <div class="config-card">
                 <div class="card-header">
                     <h3><span class="num-tag purple-inner-tag">3</span> Editor de Guiones</h3>
