@@ -1,434 +1,169 @@
-/* ==========================================================================
-   TELEPROMPTER PRO V9 - FIEL A LAS CAPTURAS DE DISEÑO
-   ========================================================================== */
 :root {
-    --bg-main: #02050e;
-    --bg-card: #080f24;
-    --bg-input: #040817;
-    --text-main: #ffffff;
-    --text-muted: #627293;
-    --neon-blue: #1a8cff;
-    --neon-purple: #9d4edd;
-    --neon-green: #00e676;
-    --neon-pink: #ff007f;
-    --accent-red: #d32f2f;
-    --accent-yellow: #fbc02d;
-    --font-stack: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    --bg-app: #030712;
+    --bg-card: #0b1329;
+    --bg-input: #070d1e;
+    --border-color: #16223f;
+    --text-primary: #ffffff;
+    --text-muted: #64748b;
+    
+    --neon-blue: #00d2ff;
+    --neon-purple: #7928ca;
+    --neon-green: #00ffa3;
+    
+    --btn-red: #1e0a10;
+    --btn-red-border: #ff1744;
+    --btn-yellow: #1e170a;
+    --btn-yellow-border: #ffea00;
+    --btn-blue: #0a131e;
+    --btn-blue-border: #00b0ff;
+    --btn-green: #0a1e14;
+    --btn-green-border: #00e676;
+    --btn-gray: #111827;
+    --btn-gray-border: #374151;
 }
 
-/* Restablecimiento general */
 * {
     box-sizing: border-box;
-    margin: 0;
-    padding: 0;
-    font-family: var(--font-stack);
+    margin: 0; padding: 0;
+    font-family: system-ui, -apple-system, sans-serif;
 }
 
 body {
-    background-color: var(--bg-main);
-    color: var(--text-main);
-    padding: 15px;
-    min-height: 100vh;
-    display: flex;
-    flex-direction: column;
-}
-
-/* TEMAS ASOCIADOS A LOS BOTONES DE LA SECCIÓN 4 */
-body.theme-oled {
-    --bg-main: #000000;
-    --bg-card: #09090b;
-    --bg-input: #121214;
-}
-body.theme-light {
-    --bg-main: #f4f6fa;
-    --bg-card: #ffffff;
-    --bg-input: #f0f2f5;
-    --text-main: #1e293b;
-    --text-muted: #64748b;
-}
-
-/* HEADER */
-.app-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 15px;
-}
-
-.app-header h1 {
-    font-size: 1.4rem;
-    font-weight: 700;
-    letter-spacing: 0.5px;
-}
-
-.header-badges {
-    display: flex;
-    gap: 10px;
-}
-
-.badge {
-    background: #0d1b3e;
-    padding: 5px 12px;
-    border-radius: 8px;
-    font-size: 0.75rem;
-    font-weight: 600;
-    color: #ffffff;
-    border: 1px solid #1e293b;
-}
-
-/* LAYOUT GENERAL */
-.main-layout {
-    display: flex;
-    flex-direction: column;
-    gap: 15px;
-    flex: 1;
-}
-
-/* CONTENEDOR DE CÁMARA Y MONITOR */
-.viewport-wrapper-layout {
-    display: flex;
-    flex-direction: column;
-    gap: 15px;
-}
-
-/* Marco de Neón Envolvente Inteligente (idéntico a tus capturas) */
-.viewport-outer-container {
-    background: var(--bg-card);
-    padding: 12px;
-    border-radius: 20px;
-    border: 2px solid transparent;
-    background-image: linear-gradient(var(--bg-card), var(--bg-card)), linear-gradient(135deg, #00f2fe 0%, #4facfe 30%, #7928ca 70%, #ff007f 100%);
-    background-origin: border-box;
-    background-clip: content-box, border-box;
-    box-shadow: 0px 0px 25px rgba(121, 40, 202, 0.25);
-}
-
-.viewport-outer {
-    width: 100%;
-    position: relative;
+    background-color: var(--bg-app);
+    color: var(--text-primary);
+    padding: 20px;
+    height: 100vh;
     overflow: hidden;
-    border-radius: 14px;
-    background: #000000;
-}
-
-/* Relación de aspecto del video */
-.viewport-outer.format-16-9 { aspect-ratio: 16 / 9; }
-.viewport-outer.format-9-16 { aspect-ratio: 9 / 16; max-width: 400px; margin: 0 auto; }
-
-.viewport-container {
-    width: 100%;
-    height: 100%;
-    position: relative;
-}
-
-#video {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-}
-
-/* LÍNEAS GUÍA DE LECTURA ROJAS DE TUS CAPTURAS */
-.reading-guide {
-    position: absolute;
-    top: 30%;
-    left: 0;
-    width: 100%;
-    height: 35%;
-    border-top: 2px solid #ef4444;
-    border-bottom: 2px solid #ef4444;
-    pointer-events: none;
-    z-index: 5;
-}
-
-/* CAPA DEL TELEPROMPTER */
-.prompter-overlay {
-    position: absolute;
-    top: 0; left: 0; right: 0; bottom: 0;
     display: flex;
     flex-direction: column;
-    justify-content: center;
-    align-items: center;
-    background: rgba(0, 0, 0, 0.2);
-    pointer-events: none;
 }
 
-.prompter-text {
-    width: 85%;
-    color: #00ffa3;
-    font-weight: 700;
-    font-size: 1.5rem;
-    text-align: center;
-    line-height: 1.4;
-    text-shadow: 0px 2px 4px rgba(0,0,0,1);
-}
-
-/* BOTONES PRINCIPALES DE ACCIÓN TÁCTIL */
-.external-floating-controls {
-    display: grid;
-    grid-template-columns: repeat(5, 1fr);
-    gap: 8px;
-}
-
-.btn-floating {
-    background: var(--bg-card);
-    border: 1px solid #1e293b;
-    color: var(--text-main);
-    padding: 12px 4px;
-    border-radius: 12px;
-    font-size: 0.7rem;
-    font-weight: 700;
-    letter-spacing: 0.5px;
-    cursor: pointer;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    gap: 6px;
-}
-
-.btn-floating .control-icon {
-    font-size: 1.1rem;
-}
-
-/* Bordes izquierdos de color de tus capturas */
-.btn-start { border-left: 4px solid var(--neon-pink); }
-.btn-pause { border-left: 4px solid var(--accent-yellow); }
-.btn-reset { border-left: 4px solid var(--neon-blue); }
-.btn-camera { border-left: 4px solid var(--neon-green); }
-.btn-stop { border-left: 4px solid #64748b; }
-
-/* CONTENEDOR DE SECCIONES DE CONFIGURACIÓN */
-.controls-card {
-    display: flex;
-    flex-direction: column;
-    gap: 12px;
-}
-
-.control-section {
-    background: var(--bg-card);
-    border-radius: 14px;
-    padding: 15px;
-    border: 1px solid rgba(255, 255, 255, 0.02);
-}
-
-.control-section h3 {
-    font-size: 0.9rem;
-    font-weight: 600;
-    margin-bottom: 12px;
-    display: flex;
-    align-items: center;
-    gap: 8px;
-}
-
-.step-tag {
-    background: #2563eb;
-    color: #ffffff;
-    width: 20px;
-    height: 20px;
-    border-radius: 6px;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 0.75rem;
-    font-weight: 700;
-}
-
-/* ELEMENTOS DE FORMULARIO */
-.options-row {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 10px;
-    margin-bottom: 8px;
-}
-
-.option-box {
-    display: flex;
-    flex-direction: column;
-    gap: 4px;
-}
-
-label {
-    font-size: 0.7rem;
-    color: var(--text-muted);
-    font-weight: 500;
-}
-
-select {
-    background: var(--bg-input);
-    border: 1px solid #1e293b;
-    color: var(--text-main);
-    padding: 10px;
-    border-radius: 8px;
-    font-size: 0.8rem;
-    outline: none;
-    width: 100%;
-}
-
-/* DESLIZADORES */
-.setting-row {
-    margin-bottom: 12px;
-}
-
-.setting-info {
+/* TOP HEADER */
+.main-header {
     display: flex;
     justify-content: space-between;
-    font-size: 0.75rem;
-    margin-bottom: 4px;
+    align-items: center;
+    margin-bottom: 20px;
 }
-
-input[type="range"] {
-    -webkit-appearance: none;
-    width: 100%;
-    height: 5px;
-    background: var(--bg-input);
-    border-radius: 4px;
-    outline: none;
+.header-left { display: flex; align-items: center; gap: 12px; }
+.app-logo {
+    background: linear-gradient(135deg, #00f2fe, #7928ca);
+    width: 35px; height: 35px; border-radius: 8px;
+    display: flex; align-items: center; justify-content: center;
+    font-weight: 900; font-size: 1.3rem;
 }
+.main-header h1 { font-size: 1.2rem; font-weight: 600; }
+.version-tag { background: #1e293b; padding: 2px 6px; border-radius: 4px; font-size: 0.7rem; color: #38bdf8; }
 
-input[type="range"]::-webkit-slider-thumb {
-    -webkit-appearance: none;
-    width: 14px;
-    height: 14px;
-    border-radius: 50%;
-    background: #ffffff;
-    cursor: pointer;
-}
+.header-center { display: flex; gap: 15px; }
+.status-pill { background: #0f172a; border: 1px solid var(--border-color); padding: 6px 14px; border-radius: 20px; font-size: 0.75rem; display: flex; align-items: center; gap: 8px; }
+.dot { width: 8px; height: 8px; border-radius: 50%; }
+.dot.green { background: #00e676; box-shadow: 0 0 8px #00e676; }
 
-/* EDITOR DE GUIONES */
-textarea {
-    background: var(--bg-input);
-    border: 1px solid #1e293b;
-    color: var(--text-main);
-    padding: 12px;
-    border-radius: 8px;
-    font-size: 0.85rem;
-    width: 100%;
-    height: 100px;
-    resize: none;
-    outline: none;
-}
-
-.script-manager-bar {
-    display: flex;
-    gap: 8px;
-    margin-bottom: 8px;
-}
-
-.btn-action {
+/* APP LAYOUT SPLIT */
+.app-container {
+    display: grid;
+    grid-template-columns: 1fr 480px;
+    gap: 20px;
     flex: 1;
-    background: var(--bg-input);
-    border: 1px solid #1e293b;
-    color: var(--text-main);
-    padding: 8px;
-    border-radius: 6px;
-    font-size: 0.75rem;
-    font-weight: 600;
-    cursor: pointer;
+    height: calc(100vh - 80px);
 }
 
-.btn-danger {
-    border-color: #ef4444;
-    color: #ef4444;
+.left-column { display: flex; flex-direction: column; justify-content: space-between; height: 100%; }
+.monitor-and-actions { display: grid; grid-template-columns: 1fr auto; gap: 20px; align-items: start; }
+
+/* MONITOR 9:16 EN PANTALLA CON CONTORNO DE NEÓN */
+.video-card-glow {
+    background: var(--bg-card);
+    padding: 3px;
+    border-radius: 24px;
+    position: relative;
+    box-shadow: 0 0 30px rgba(0, 210, 255, 0.15);
+    background: linear-gradient(135deg, #00d2ff, #7928ca, #ff007f);
 }
-
-/* TELEMETRÍA INFERIOR DE RESPALDO */
-.pc-info-footer-bar {
-    display: none;
+.video-card-inner {
+    background: #000000;
+    border-radius: 22px;
+    overflow: hidden;
+    aspect-ratio: 9 / 16;
+    max-height: calc(100vh - 220px);
+    margin: 0 auto;
+    position: relative;
 }
+#video { width: 100%; height: 100%; object-fit: cover; }
 
+/* LINEAS GUIA */
+.guide-line { position: absolute; left: 0; width: 100%; height: 2px; background: #ff1744; z-index: 10; opacity: 0.8; }
+.line-top { top: 35%; }
+.line-bottom { top: 43%; }
 
-/* ==========================================================================
-   OPTIMIZACIÓN DE PANTALLA COMPLETA PARA PC O LAPTOP
-   ========================================================================== */
-@media (min-width: 1024px) {
-    body {
-        padding: 25px;
-        height: 100vh;
-        overflow: hidden;
-    }
+/* BADGES DEL ENTORNO DE VIDEO */
+.top-badges { position: absolute; top: 15px; left: 15px; right: 15px; display: flex; justify-content: space-between; z-index: 10; }
+.v-badge { background: rgba(0,0,0,0.6); backdrop-filter: blur(4px); padding: 4px 10px; border-radius: 6px; font-size: 0.7rem; font-weight: 600; }
+.v-badge.battery { color: #00e676; }
 
-    /* Estructura dividida de PC */
-    .main-layout {
-        display: grid;
-        grid-template-columns: 1fr 450px;
-        gap: 20px;
-        flex: 1;
-        align-items: start;
-    }
+.bottom-badges { position: absolute; bottom: 15px; left: 0; right: 0; display: flex; justify-content: space-around; align-items: center; z-index: 10; }
+.grid-btn, .flip-btn { background: rgba(0,0,0,0.6); border: none; color: white; width: 35px; height: 35px; border-radius: 50%; cursor: pointer; }
+.cam-trigger-btn { background: #00e676; border: none; width: 50px; height: 50px; border-radius: 50%; font-size: 1.2rem; cursor: pointer; display: flex; align-items: center; justify-content: center; box-shadow: 0 0 15px #00e676; }
 
-    /* Caja izquierda: Monitor + Botonera vertical a un costado */
-    .viewport-wrapper-layout {
-        display: grid;
-        grid-template-columns: 1fr auto;
-        gap: 15px;
-        align-items: stretch;
-    }
-
-    .viewport-outer-container {
-        height: calc(100vh - 170px);
-        display: flex;
-        align-items: center;
-        justify-content: center;
-    }
-
-    .viewport-outer.format-16-9 {
-        width: 100%;
-        height: 100%;
-    }
-
-    /* Botones alineados verticalmente a la derecha del video */
-    .external-floating-controls {
-        grid-template-columns: 1fr;
-        width: 105px;
-        height: 100%;
-        justify-content: space-between;
-    }
-
-    .btn-floating {
-        height: 18%;
-        font-size: 0.75rem;
-    }
-
-    /* Caja derecha fija con scroll individual para las configuraciones */
-    .controls-card {
-        height: calc(100vh - 170px);
-        overflow-y: auto;
-        padding-right: 4px;
-    }
-
-    /* Barra inferior de telemetría de datos rápidos de PC */
-    .pc-info-footer-bar {
-        display: flex;
-        grid-column: 1 / span 2;
-        background: var(--bg-card);
-        border: 1px solid #1e293b;
-        border-radius: 10px;
-        padding: 12px;
-        margin-top: auto;
-        justify-content: flex-start;
-        gap: 40px;
-    }
-
-    .pc-footer-item {
-        display: flex;
-        align-items: center;
-        gap: 10px;
-        background: var(--bg-input);
-        padding: 6px 15px;
-        border-radius: 6px;
-        border: 1px solid rgba(255, 255, 255, 0.03);
-    }
-
-    .pc-footer-item span:first-child {
-        font-size: 0.65rem;
-        color: var(--text-muted);
-        text-transform: uppercase;
-        font-weight: 600;
-    }
-
-    .pc-footer-item span:last-child {
-        font-size: 0.85rem;
-        font-weight: 700;
-        color: var(--text-main);
-    }
+/* BOTONERA VERTICAL DERECHA */
+.vertical-control-panel { display: flex; flex-direction: column; gap: 15px; width: 130px; }
+.action-btn {
+    display: flex; flex-direction: row; align-items: center; justify-content: flex-start; gap: 10px;
+    padding: 14px 12px; border-radius: 12px; font-size: 0.75rem; font-weight: 700; cursor: pointer;
+    color: var(--text-primary); border: 2px solid transparent; background: var(--bg-card); transition: all 0.2s;
 }
+.action-btn.red-btn { background: var(--btn-red); border-color: var(--btn-red-border); box-shadow: 0 0 10px rgba(255,23,68,0.2); }
+.action-btn.yellow-btn { background: var(--btn-yellow); border-color: var(--btn-yellow-border); }
+.action-btn.blue-btn { background: var(--btn-blue); border-color: var(--btn-blue-border); }
+.action-btn.green-btn { background: var(--btn-green); border-color: var(--btn-green-border); }
+.action-btn.gray-btn { background: var(--btn-gray); border-color: var(--btn-gray-border); opacity: 0.4; }
+
+.btn-dot { width: 8px; height: 8px; background: #ff1744; border-radius: 50%; display: inline-block; animation: pulse 1.5s infinite; }
+
+/* CONFIG CARDS DERECHA */
+.right-column { display: flex; flex-direction: column; gap: 15px; overflow-y: auto; padding-right: 5px; }
+.config-card { background: var(--bg-card); border: 1px solid var(--border-color); border-radius: 16px; padding: 18px; }
+.card-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; }
+.card-header h3 { font-size: 0.85rem; font-weight: 600; display: flex; align-items: center; gap: 10px; }
+
+.num-tag { width: 22px; height: 22px; border-radius: 6px; display: inline-flex; align-items: center; justify-content: center; font-size: 0.75rem; font-weight: 700; }
+.blue-tag { background: #2563eb; color: white; }
+.purple-tag { background: #4f46e5; color: white; }
+.purple-inner-tag { background: #6366f1; color: white; }
+
+.grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
+.input-group { display: flex; flex-direction: column; gap: 6px; }
+.input-group label { font-size: 0.7rem; color: var(--text-muted); }
+.input-group select { background: var(--bg-input); border: 1px solid var(--border-color); color: white; padding: 10px 12px; border-radius: 8px; font-size: 0.8rem; outline: none; }
+
+/* SLIDERS Y META */
+.slider-group { margin-bottom: 12px; }
+.slider-meta { display: flex; justify-content: space-between; font-size: 0.75rem; margin-bottom: 6px; }
+.slider-meta label { color: var(--text-muted); }
+input[type="range"] { -webkit-appearance: none; width: 100%; height: 6px; background: var(--bg-input); border-radius: 4px; }
+input[type="range"]::-webkit-slider-thumb { -webkit-appearance: none; width: 14px; height: 14px; border-radius: 50%; background: #2563eb; cursor: pointer; }
+.duration-indicator { color: #00e676; font-size: 0.75rem; margin-top: 5px; }
+
+/* TEXTAREA EDITOR */
+.editor-actions { display: flex; gap: 10px; margin-bottom: 12px; }
+.editor-btn { padding: 8px 14px; border-radius: 8px; font-size: 0.75rem; font-weight: 600; cursor: pointer; background: transparent; }
+.blue-btn-light { background: #2563eb; color: white; border: none; }
+.gray-outline { border: 1px solid var(--border-color); color: white; }
+.red-outline { border: 1px solid #ff1744; color: #ff1744; }
+
+textarea { width: 100%; height: 90px; background: var(--bg-input); border: 1px solid var(--border-color); border-radius: 10px; color: white; padding: 12px; font-size: 0.85rem; resize: none; outline: none; line-height: 1.4; }
+.char-counter { text-align: right; font-size: 0.7rem; color: var(--text-muted); margin-top: 4px; }
+
+/* THEME GRID */
+.theme-selector-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
+.theme-btn { background: var(--bg-input); border: 1px solid var(--border-color); color: white; padding: 10px; border-radius: 8px; font-size: 0.75rem; cursor: pointer; }
+.theme-btn.active-theme { border-color: #2563eb; box-shadow: 0 0 10px rgba(37,99,235,0.3); }
+
+/* TELEMETRIA FOOTER INFERIOR */
+.telemetry-footer { display: flex; gap: 15px; background: var(--bg-card); border: 1px solid var(--border-color); border-radius: 14px; padding: 10px 20px; margin-top: auto; }
+.tel-item { display: flex; flex-direction: column; gap: 2px; min-width: 90px; }
+.tel-label { font-size: 0.65rem; color: var(--text-muted); text-transform: uppercase; }
+.tel-val { font-size: 0.85rem; font-weight: 700; }
+
+@keyframes pulse { 0% { opacity: 0.5; } 50% { opacity: 1; } 100% { opacity: 0.5; } }
